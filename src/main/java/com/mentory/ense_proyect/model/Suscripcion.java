@@ -1,38 +1,31 @@
 package com.mentory.ense_proyect.model;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection = "suscripciones")
 public class Suscripcion {
-    private String idUsuario; // ID del usuario al que pertenece la suscripción
-    private String plan; // Nombre del plan de suscripción
+    @Id private String id;      // Mongo DB genera automáticamente el ID
+    //private String plan;      // El tipo de plan de la suscripción se agregará posteriormente
     private String fechaInicio; // Fecha de inicio de la suscripción
-    private String fechaFin; // Fecha de fin de la suscripción
-    private boolean activa; // Estado de la suscripción
+    private String fechaFin;    // Fecha de fin de la suscripción
+    private Float precio;       // Precio de la suscripción
+    private boolean activa;     // Estado de la suscripción
+
+    private Usuario comprador;
+    private Leccion leccionAsociada;
 
     // Constructor
-    public Suscripcion(String idUsuario, String plan, String fechaInicio, String fechaFin) {
-        this.idUsuario = idUsuario;
-        this.plan = plan;
+    public Suscripcion(String fechaInicio, String fechaFin, Float precio, boolean activa, Usuario comprador, Leccion leccionAsociada) {
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
-        this.activa = true; // Por defecto, la suscripción está activa
+        this.precio = precio;
+        this.activa = activa;
+        this.comprador = comprador;
+        this.leccionAsociada = leccionAsociada;
     }
 
     // Getters and Setters
-    public String getIdUsuario() {
-        return idUsuario;
-    }
-
-    public void setIdUsuario(String idUsuario) {
-        this.idUsuario = idUsuario;
-    }
-
-    public String getPlan() {
-        return plan;
-    }
-
-    public void setPlan(String plan) {
-        this.plan = plan;
-    }
-
     public String getFechaInicio() {
         return fechaInicio;
     }
