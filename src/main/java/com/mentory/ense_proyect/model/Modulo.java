@@ -12,16 +12,18 @@ public class Modulo {
     private int duracionMins;   // Duración en minutos
     private int orden;          // Orden del módulo dentro de la lección (ver como hacerlo)
 
-    private Leccion leccion; // Lección a la que pertenece dicho módulo
+    private String leccionId; // Lección a la que pertenece dicho módulo
 
     // Constructor
-    public Modulo( String titulo, String descripcion, String contenido, int duracionMins, int orden, Leccion leccion) {
+    public Modulo(){}
+
+    public Modulo( String titulo, String descripcion, String contenido, int duracionMins, int orden, String leccionId) {
         this.titulo = titulo;
         this.descripcion = descripcion;
         this.contenido = contenido;
         this.duracionMins = duracionMins;
         this.orden = orden;
-        this.leccion = leccion;
+        this.leccionId = leccionId;
     }
 
     // Getters and Setters

@@ -9,4 +9,8 @@ public class DuplicatedHabilidadException extends Throwable  {
         this.habilidad = habilidad;
     }
 
+    public Habilidad getHabilidad() {
+        return habilidad;
+    }
+
 }

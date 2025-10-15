@@ -20,6 +20,10 @@ public class Usuario {
     private HashMap<String,Leccion> leccionesCreadas = new HashMap<>();   // Lecciones creadas por el usuario
 
     // Constructor
+
+    public Usuario() {
+    }
+
     // Sin ID (para creación de nuevos usuarios)
     public Usuario(String nombre, String apellido1, String apellido2, String email, String password) {
         this.nombre = nombre;

@@ -9,20 +9,21 @@ public class Suscripcion {
     //private String plan;      // El tipo de plan de la suscripción se agregará posteriormente
     private String fechaInicio; // Fecha de inicio de la suscripción
     private String fechaFin;    // Fecha de fin de la suscripción
-    private Float precio;       // Precio de la suscripción
+    private double precio;       // Precio de la suscripción
     private boolean activa;     // Estado de la suscripción
 
-    private Usuario comprador;
-    private Leccion leccionAsociada;
+    private String compradorId;
+    private String leccionAsociadaId;
 
     // Constructor
-    public Suscripcion(String fechaInicio, String fechaFin, Float precio, boolean activa, Usuario comprador, Leccion leccionAsociada) {
+    public Suscripcion(){}
+    public Suscripcion(String fechaInicio, String fechaFin, double precio, boolean activa, String comprador, String leccionAsociada) {
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
         this.precio = precio;
         this.activa = activa;
-        this.comprador = comprador;
-        this.leccionAsociada = leccionAsociada;
+        this.compradorId = comprador;
+        this.leccionAsociadaId = leccionAsociada;
     }
 
     // Getters and Setters
