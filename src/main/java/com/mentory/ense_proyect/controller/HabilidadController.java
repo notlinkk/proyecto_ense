@@ -4,11 +4,9 @@ import com.mentory.ense_proyect.exception.DuplicatedHabilidadException;
 import com.mentory.ense_proyect.exception.HabilidadNotFoundException;
 import com.mentory.ense_proyect.model.Habilidad;
 import com.mentory.ense_proyect.service.HabilidadService;
-import com.mentory.ense_proyect.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
@@ -58,6 +56,7 @@ public class HabilidadController {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
     }
+
 
 }
 
