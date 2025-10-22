@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "modulos")
 public class Modulo {
+    // id de mongo, se  pueden repetir titulos dentro de lecciones distintas.
     @Id private String id;
     private String titulo;      // Título del módulo
     private String descripcion; // Descripción del módulo

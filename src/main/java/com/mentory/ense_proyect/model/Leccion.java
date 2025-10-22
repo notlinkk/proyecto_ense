@@ -9,6 +9,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "lecciones")
 public class Leccion {
+    // La distincion se verá reflejada en la url del recurso /users/{userId}/lessons/{lessonId}
+    // Se puede repetir nombre de la leccion, pero tendrá que tener propietarios distintos
     @Id private String id;
     private String nombre;
     private String descripcion;

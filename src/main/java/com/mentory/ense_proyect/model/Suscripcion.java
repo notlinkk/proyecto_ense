@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "suscripciones")
 public class Suscripcion {
+    // revisar en el futuro el id
     @Id private String id;      // Mongo DB genera automáticamente el ID
     //private String plan;      // El tipo de plan de la suscripción se agregará posteriormente
     private String fechaInicio; // Fecha de inicio de la suscripción
@@ -27,6 +28,9 @@ public class Suscripcion {
     }
 
     // Getters and Setters
+    public String getId() {
+        return id;
+    }
     public String getFechaInicio() {
         return fechaInicio;
     }
