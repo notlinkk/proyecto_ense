@@ -29,4 +29,59 @@ public class Modulo {
 
     // Getters and Setters
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getTitulo() {
+        return titulo;
+    }
+
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
+    public String getContenido() {
+        return contenido;
+    }
+
+    public void setContenido(String contenido) {
+        this.contenido = contenido;
+    }
+
+    public int getDuracionMins() {
+        return duracionMins;
+    }
+
+    public void setDuracionMins(int duracionMins) {
+        this.duracionMins = duracionMins;
+    }
+
+    public int getOrden() {
+        return orden;
+    }
+
+    public void setOrden(int orden) {
+        this.orden = orden;
+    }
+
+    public String getLeccionId() {
+        return leccionId;
+    }
+
+    public void setLeccionId(String leccionId) {
+        this.leccionId = leccionId;
+    }
 }

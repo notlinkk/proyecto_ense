@@ -26,18 +26,9 @@ public class UsuarioController {
         this.usuarioService = usuarioService;
     }
 
-    /*
-        -Operaciones a implementar:
-            -GET /users: Obtener todos los usuarios.
-            -GET /users/{id}: Obtener un usuario por su ID.
-            -POST /users: Crear un nuevo usuario.
-            -PUT /users/{id}: Actualizar un usuario existente.
-            -DELETE /users/{id}: Eliminar un usuario por su ID.
+   // O al crear usr revisar q no exita username, o usar   @Indexed(unique = true)
+    // buscar por username,
 
-         Para los parámetros habría que replantearse  cambiar los id que crea monogo y poner como @Id otro elemento único
-         Es decir, si un usuario queire buscar a otro no tiene sentido que busque por el id de mongo sino por un username único.
-         Luego para getUsuarios meteer un RequestParam de username.
-     */
     @GetMapping()
     public ResponseEntity <Set<Usuario>> getUsuarios(){
         return ResponseEntity.ok(usuarioService.getUsers());

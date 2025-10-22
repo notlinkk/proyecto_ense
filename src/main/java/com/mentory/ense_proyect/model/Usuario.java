@@ -9,7 +9,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "usuarios")
 public class Usuario {
-    @Id private String id;      // ID único del usuario
+    // El username será el ID único del usuario
+    @Id private String username;      // ID único del usuario
     private String nombre;      // Nombre del usuario
     private String apellido1;   // Primer apellido del usuario
     private String apellido2;   // Segundo apellido del usuario
@@ -24,18 +25,9 @@ public class Usuario {
     public Usuario() {
     }
 
-    // Sin ID (para creación de nuevos usuarios)
-    public Usuario(String nombre, String apellido1, String apellido2, String email, String password) {
-        this.nombre = nombre;
-        this.apellido1 = apellido1;
-        this.apellido2 = apellido2;
-        this.email = email;
-        this.password = password;
-    }
-
     // Con ID (para obtener usuarios existentes)
-    public Usuario(String id, String nombre, String apellido1, String apellido2, String email, String password) {
-        this.id=id;
+    public Usuario(String username, String nombre, String apellido1, String apellido2, String email, String password) {
+        this.username=username;
         this.nombre = nombre;
         this.apellido1 = apellido1;
         this.apellido2 = apellido2;
@@ -43,12 +35,12 @@ public class Usuario {
         this.password = password;
     }
     // Getters and Setters
-    public String getId() {
-        return id;
+    public String getUsername() {
+        return username;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setUsername(String id) {
+        this.username = id;
     }
 
     public String getApellido1() {
