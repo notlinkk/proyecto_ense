@@ -1,26 +1,31 @@
 package com.mentory.ense_proyect.service;
 
-import com.mentory.ense_proyect.exception.SuscripcionNotFoundException;
-import com.mentory.ense_proyect.exception.DuplicatedSuscripcionException;
+import com.mentory.ense_proyect.exception.*;
 import com.mentory.ense_proyect.model.Suscripcion;
 import com.mentory.ense_proyect.repository.SuscripcionRepository;
-import org.springframework.beans.BeanUtils;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
-import java.util.*;
 
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.BeanWrapperImpl;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.github.fge.jsonpatch.JsonPatchOperation;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.*;
 
 @Service
 public class SuscripcionService {
     private final SuscripcionRepository suscripcionRepository;
+    private final ObjectMapper mapper;
 
     @Autowired
-    public SuscripcionService(SuscripcionRepository suscripcionRepository) {
+    public SuscripcionService(SuscripcionRepository suscripcionRepository, ObjectMapper mapper) {
         this.suscripcionRepository = suscripcionRepository;
+        this.mapper=mapper;
 
         suscripcionRepository.save(new Suscripcion("15/10/2023","15/10/2024", 20.0, true,"us10" ,"l1"));
     }
@@ -42,21 +47,12 @@ public class SuscripcionService {
         return suscripcionRepository.findById(id).orElseThrow(() -> new SuscripcionNotFoundException(id));
     }
 
-    public Suscripcion updateSuscripcion(String id, Suscripcion suscripcion) throws SuscripcionNotFoundException {
-        Suscripcion suscripcionToUpdate = suscripcionRepository.findById(id).orElseThrow(() -> new SuscripcionNotFoundException(id));
-
-        // copiar datos de suscripcion a suscripcionToUpdate, ignorando los null
-        BeanUtils.copyProperties(suscripcion,suscripcionToUpdate, getNullPropertyNames(suscripcion));
-
-        return suscripcionRepository.save(suscripcionToUpdate);
-    }
-
-    private String[] getNullPropertyNames(Object source) {
-        final BeanWrapper src = new BeanWrapperImpl(source);
-        return Arrays.stream(src.getPropertyDescriptors())
-                .map(java.beans.PropertyDescriptor::getName)
-                .filter(name -> src.getPropertyValue(name) == null)
-                .toArray(String[]::new);
+    public Suscripcion updateSuscripcion(String id, List<JsonPatchOperation> changes) throws SuscripcionNotFoundException, JsonPatchException {
+        Suscripcion suscripcion = suscripcionRepository.findById(id).orElseThrow(() -> new SuscripcionNotFoundException(id));
+            JsonPatch patch = new JsonPatch(changes);
+            JsonNode patched = patch.apply(mapper.convertValue(suscripcion, JsonNode.class));
+            Suscripcion suscripcionPatched = mapper.convertValue(patched, Suscripcion.class);
+            return suscripcionRepository.save(suscripcionPatched);
     }
 
     public void deleteSuscripcion(String id) throws SuscripcionNotFoundException {

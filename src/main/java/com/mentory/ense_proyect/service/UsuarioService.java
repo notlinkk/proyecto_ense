@@ -1,29 +1,31 @@
 package com.mentory.ense_proyect.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
+import com.github.fge.jsonpatch.JsonPatchOperation;
 import com.mentory.ense_proyect.exception.UsuarioNotFoundException;
 import com.mentory.ense_proyect.exception.DuplicatedUsuarioException;
 import com.mentory.ense_proyect.model.Usuario;
 import com.mentory.ense_proyect.repository.UsuarioRepository;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 import java.util.*;
 
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.BeanWrapperImpl;
-
 @Service
 public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
+    private final ObjectMapper mapper;
 
     @Autowired
-    public UsuarioService(UsuarioRepository userRepository) {
+    public UsuarioService(UsuarioRepository userRepository, ObjectMapper mapper) {
         this.usuarioRepository = userRepository;
+        this.mapper = new ObjectMapper();
 
         userRepository.save(
-                new Usuario("us10", "Fernando", "García", "Rodriguez", "fernandito54@gmail.com", "1234")
+                new Usuario("fernandaco2011", "Fernando", "García", "Rodriguez", "fernandito54@gmail.com", "1234")
         );
     }
 
@@ -36,6 +38,14 @@ public class UsuarioService {
         }
     }
 
+    public Usuario updateUser(String username, List<JsonPatchOperation> changes) throws UsuarioNotFoundException, JsonPatchException {
+        Usuario usuario = usuarioRepository.findById(username).orElseThrow(() -> new UsuarioNotFoundException(username));
+        JsonPatch patch = new JsonPatch(changes);
+        JsonNode patched = patch.apply(mapper.convertValue(usuario, JsonNode.class));
+        Usuario updated = mapper.convertValue(patched, Usuario.class);
+        return usuarioRepository.save(updated);
+    }
+
     public Set<Usuario> getUsers(){
         return new HashSet<>(usuarioRepository.findAll());
     }
@@ -44,22 +54,7 @@ public class UsuarioService {
         return usuarioRepository.findById(id).orElseThrow(() -> new UsuarioNotFoundException(id));
     }
 
-    public Usuario updateUsuario(String id, Usuario user) throws UsuarioNotFoundException {
-        Usuario userToUpdate = usuarioRepository.findById(id).orElseThrow(() -> new UsuarioNotFoundException(id));
 
-        // copiar datos de user a userToUpdate, ignorando los null
-        BeanUtils.copyProperties(user,userToUpdate, getNullPropertyNames(user));
-
-        return usuarioRepository.save(userToUpdate);
-    }
-
-    private String[] getNullPropertyNames(Object source) {
-        final BeanWrapper src = new BeanWrapperImpl(source);
-        return Arrays.stream(src.getPropertyDescriptors())
-                .map(java.beans.PropertyDescriptor::getName)
-                .filter(name -> src.getPropertyValue(name) == null)
-                .toArray(String[]::new);
-    }
 
     public void deleteUsuario(String id) throws UsuarioNotFoundException {
         if(usuarioRepository.existsById(id)){

@@ -1,9 +1,11 @@
 package com.mentory.ense_proyect.controller;
 
+import com.github.fge.jsonpatch.JsonPatchException;
 import com.mentory.ense_proyect.exception.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -151,5 +153,10 @@ public class ErrorController extends ResponseEntityExceptionHandler {
                                 ex.getUsuario().getUsername()
                         ).build().toUriString())
                 .build();
+    }
+
+    @ExceptionHandler(JsonPatchException.class)
+    public ResponseEntity<String> handleJsonPatchException(JsonPatchException ex) {
+        return ResponseEntity.badRequest().body("Error aplicando el parche JSON: " + ex.getMessage());
     }
 }

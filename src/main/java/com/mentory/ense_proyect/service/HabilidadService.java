@@ -1,23 +1,31 @@
 package com.mentory.ense_proyect.service;
 
+import com.mentory.ense_proyect.exception.*;
 import com.mentory.ense_proyect.model.Habilidad;
 import com.mentory.ense_proyect.repository.HabilidadRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.github.fge.jsonpatch.JsonPatchOperation;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.*;
-
-import com.mentory.ense_proyect.exception.*;
 
 @Service
 public class HabilidadService {
     private final HabilidadRepository habilidadRepository;
+    private final ObjectMapper mapper;
 
     @Autowired
-    public HabilidadService(HabilidadRepository habilidadRepository) {
+    public HabilidadService(HabilidadRepository habilidadRepository, ObjectMapper mapper) {
         this.habilidadRepository = habilidadRepository;
+        this.mapper = mapper;
         if (habilidadRepository.count() == 0) {
             habilidadRepository.saveAll(List.of(
                     new Habilidad("comunicacion-efectiva", "Capacidad para expresar ideas con claridad y escuchar activamente."),
@@ -46,19 +54,12 @@ public class HabilidadService {
         return habilidadRepository.findById(id).orElseThrow(() -> new HabilidadNotFoundException(id));
     }
 
-    // Se podría usar PATCH ya que Record permite valores null. Revisar para el resto de clases
-    public Habilidad updateHabilidade(String nombre, Habilidad habilidad) throws HabilidadNotFoundException {
-        if (habilidadRepository.existsById(nombre)) {
-            Habilidad habilidadToUpdate = habilidadRepository.findById(nombre).orElseThrow();
-            Habilidad updatedHabilidad = new Habilidad(
-                    habilidadToUpdate.nombre(),
-                    habilidad.descripcion() != null ? habilidad.descripcion() : habilidadToUpdate.descripcion()
-            );
-            return habilidadRepository.save(updatedHabilidad);
-        } else {
-            throw new HabilidadNotFoundException(nombre);
-
-        }
+    public Habilidad updateHabilidad(String nombre, List<JsonPatchOperation> changes) throws HabilidadNotFoundException, JsonPatchException {
+        Habilidad habilidad = habilidadRepository.findById(nombre).orElseThrow(() -> new HabilidadNotFoundException(nombre));
+            JsonPatch patch = new JsonPatch(changes);
+            JsonNode patched = patch.apply(mapper.convertValue(habilidad, JsonNode.class));
+            Habilidad updated = mapper.convertValue(patched, Habilidad.class);
+            return habilidadRepository.save(updated);
     }
 
     public void deleteHabilidad(String id) throws HabilidadNotFoundException {

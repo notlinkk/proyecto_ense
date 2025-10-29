@@ -6,6 +6,8 @@ import java.util.Set;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 @Document(collection = "usuarios")
 public class Usuario {
@@ -17,12 +19,15 @@ public class Usuario {
     private String email;       // Correo electrónico del usuario
     private String password;    // Contraseña del usuario
 
+    @JsonIgnore
     private Set<Suscripcion> suscripcionesCompradas = new HashSet<>();     // Suscripciones del usuario
+    @JsonIgnore
     private HashMap<String,Leccion> leccionesCreadas = new HashMap<>();   // Lecciones creadas por el usuario
 
     // Constructor
-
     public Usuario() {
+        this.suscripcionesCompradas = new HashSet<>();
+        this.leccionesCreadas = new HashMap<>();
     }
 
     // Con ID (para obtener usuarios existentes)
@@ -33,7 +38,10 @@ public class Usuario {
         this.apellido2 = apellido2;
         this.email = email;
         this.password = password;
+        this.suscripcionesCompradas = new HashSet<>();
+        this.leccionesCreadas = new HashMap<>();
     }
+
     // Getters and Setters
     public String getUsername() {
         return username;

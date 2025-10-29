@@ -1,26 +1,32 @@
 package com.mentory.ense_proyect.service;
 
-import com.mentory.ense_proyect.exception.ModuloNotFoundException;
-import com.mentory.ense_proyect.exception.DuplicatedModuloException;
+import com.mentory.ense_proyect.exception.*;
+import com.mentory.ense_proyect.model.Habilidad;
 import com.mentory.ense_proyect.model.Modulo;
 import com.mentory.ense_proyect.repository.ModuloRepository;
-import org.springframework.beans.BeanUtils;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
-import java.util.*;
 
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.BeanWrapperImpl;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.github.fge.jsonpatch.JsonPatchOperation;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.*;
 
 @Service
 public class ModuloService {
     private final ModuloRepository moduloRepository;
+    private final ObjectMapper mapper;
 
     @Autowired
-    public ModuloService(ModuloRepository moduloRepository) {
+    public ModuloService(ModuloRepository moduloRepository,  ObjectMapper mapper) {
         this.moduloRepository=moduloRepository;
+        this.mapper=mapper;
 
         moduloRepository.save(new Modulo("Álgebra","Matrices y nueritos", "Contenido a mostrar",20,1,"us10" ));
     }
@@ -42,22 +48,12 @@ public class ModuloService {
         return moduloRepository.findById(id).orElseThrow(() -> new ModuloNotFoundException(id));
     }
 
-    public Modulo updateModulo(String id, Modulo modulo) throws ModuloNotFoundException {
-        Modulo moduloToUpdate = moduloRepository.findById(id).orElseThrow(() -> new ModuloNotFoundException(id));
-
-        // copiar datos de modulo a moduloToUpdate, ignorando los null
-        BeanUtils.copyProperties(modulo,moduloToUpdate, getNullPropertyNames(modulo));
-
-        return moduloRepository.save(moduloToUpdate);
-    }
-
-    // Función auxiliar para obtener los nombres de las propiedades nulas
-    private String[] getNullPropertyNames(Object source) {
-        final BeanWrapper src = new BeanWrapperImpl(source);
-        return Arrays.stream(src.getPropertyDescriptors())
-                .map(java.beans.PropertyDescriptor::getName)
-                .filter(name -> src.getPropertyValue(name) == null)
-                .toArray(String[]::new);
+    public Modulo updateModulo(String nombre, List<JsonPatchOperation> changes) throws ModuloNotFoundException, JsonPatchException {
+        Modulo modulo = moduloRepository.findById(nombre).orElseThrow(() -> new ModuloNotFoundException(nombre));
+        JsonPatch patch = new JsonPatch(changes);
+        JsonNode patched = patch.apply(mapper.convertValue(modulo, JsonNode.class));
+        Modulo updated = mapper.convertValue(patched, Modulo.class);
+        return moduloRepository.save(updated);
     }
 
     public void deleteModulo(String id) throws ModuloNotFoundException {
@@ -67,10 +63,5 @@ public class ModuloService {
             throw new ModuloNotFoundException(id);
         }
     }
-
-
-
-
-
 
 }
