@@ -4,27 +4,30 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "suscripciones")
+
 public class Suscripcion {
-    // revisar en el futuro el id
-    @Id private String id;      // Mongo DB genera automáticamente el ID
-    //private String plan;      // El tipo de plan de la suscripción se agregará posteriormente
+    @Id private String id;      // Generado automáticamente por MongoDB
+    //private String plan;      Añadir en posteriores actualizaciones
     private String fechaInicio; // Fecha de inicio de la suscripción
     private String fechaFin;    // Fecha de fin de la suscripción
     private double precio;       // Precio de la suscripción
     private boolean activa;     // Estado de la suscripción
 
-    private String compradorId;
-    private String leccionAsociadaId;
+    private Usuario comprador;
+    private Leccion leccionAsociada;
+
+    // Constructor vacio
+    public Suscripcion(){
+    }
 
     // Constructor
-    public Suscripcion(){}
-    public Suscripcion(String fechaInicio, String fechaFin, double precio, boolean activa, String comprador, String leccionAsociada) {
+    public Suscripcion(String fechaInicio, String fechaFin, double precio, boolean activa, Usuario comprador, Leccion leccionAsociada) {
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
         this.precio = precio;
         this.activa = activa;
-        this.compradorId = comprador;
-        this.leccionAsociadaId = leccionAsociada;
+        this.comprador = comprador;
+        this.leccionAsociada = leccionAsociada;
     }
 
     // Getters and Setters

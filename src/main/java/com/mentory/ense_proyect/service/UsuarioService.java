@@ -1,17 +1,25 @@
 package com.mentory.ense_proyect.service;
 
+import com.mentory.ense_proyect.exception.UsuarioNotFoundException;
+import com.mentory.ense_proyect.exception.DuplicatedUsuarioException;
+import com.mentory.ense_proyect.model.Usuario;
+import com.mentory.ense_proyect.repository.UsuarioRepository;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.stereotype.Service;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
 import com.github.fge.jsonpatch.JsonPatchOperation;
-import com.mentory.ense_proyect.exception.UsuarioNotFoundException;
-import com.mentory.ense_proyect.exception.DuplicatedUsuarioException;
-import com.mentory.ense_proyect.model.Usuario;
-import com.mentory.ense_proyect.repository.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.stereotype.Service;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 import java.util.*;
 
 @Service
@@ -46,8 +54,9 @@ public class UsuarioService {
         return usuarioRepository.save(updated);
     }
 
-    public Set<Usuario> getUsers(){
-        return new HashSet<>(usuarioRepository.findAll());
+    public Page<@NonNull Usuario> getUsers(@Nullable String nombre, PageRequest page) {
+        Example<Usuario> example = Example.of(new Usuario(nombre, null, null, null, null, null));
+        return usuarioRepository.findAll(example, page);
     }
 
     public Usuario getUser(String id) throws UsuarioNotFoundException {

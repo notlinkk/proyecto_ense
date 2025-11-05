@@ -8,6 +8,8 @@ import com.mentory.ense_proyect.repository.ModuloRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
 
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
@@ -15,6 +17,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.github.fge.jsonpatch.JsonPatchOperation;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 
@@ -40,8 +45,9 @@ public class ModuloService {
         }
     }
 
-    public Set<Modulo> getModulos() {
-        return new HashSet<>(moduloRepository.findAll());
+    public Page<@NonNull Modulo> getModulos(@Nullable String nombre, PageRequest page) {
+        Example<Modulo> example = Example.of(new Modulo(nombre, null, null,0,0,null));
+        return moduloRepository.findAll(example, page);
     }
 
     public Modulo getModulo(String id) throws ModuloNotFoundException {

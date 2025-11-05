@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import com.github.fge.jsonpatch.JsonPatchOperation;
 import com.github.fge.jsonpatch.JsonPatchException;
@@ -26,17 +29,30 @@ public class SuscripcionController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<Suscripcion> getModulo(@PathVariable("id") String id) throws SuscripcionNotFoundException{
+    public ResponseEntity<Suscripcion> getSuscripcion(@PathVariable("id") String id) throws SuscripcionNotFoundException{
         return ResponseEntity.ok(suscripcionService.getSuscripcion(id));
     }
 
     @GetMapping
-    public ResponseEntity<Set<Suscripcion>> getModulos() {
-        Set<Suscripcion> suscripcion = suscripcionService.getSuscripciones();
-        if (suscripcion == null) {
+    public ResponseEntity<Page<Suscripcion>> getSuscripciones(
+            @RequestParam(value="id", required=false) String id,
+            @RequestParam(value="page", required=false, defaultValue="0") int page,
+            @RequestParam(value="size", required=false, defaultValue="2") int pagesize,
+            @RequestParam(value="sort", required=false, defaultValue="") List<String> sort
+    )
+    {
+        Page<Suscripcion> suscripciones = suscripcionService.getSuscripciones(
+                null,
+                PageRequest.of(
+                        0, 10,
+                        Sort.by(List.of(Sort.Order.asc("id")))
+                )
+        );
+
+        if (suscripciones.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok(suscripcion);
+        return ResponseEntity.ok(suscripciones);
     }
 
     @PostMapping

@@ -4,30 +4,46 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-
 @Document(collection = "usuarios")
+@JsonInclude(JsonInclude.Include.NON_NULL)
+
 public class Usuario {
-    // El username será el ID único del usuario
-    @Id private String username;      // ID único del usuario
+    public interface CreateView {}                          // Vista para la creación del usuario
+    public interface ExternalView extends CreateView {}     // Vista propia del usuario
+    public interface OwnView extends  ExternalView {}         // Vista externa del usuario
+
+    @Id @JsonView(CreateView.class)
+    private String username;      // ID único del usuario, empleado como nickname del usuario en el servicio
+
+    @JsonView(CreateView.class)
     private String nombre;      // Nombre del usuario
+
+    @JsonView(CreateView.class)
     private String apellido1;   // Primer apellido del usuario
+
+    @JsonView(CreateView.class)
     private String apellido2;   // Segundo apellido del usuario
+
+    @JsonView(CreateView.class)
     private String email;       // Correo electrónico del usuario
+
+    @JsonIgnore                 // No se serializa la contraseña al convertir a JSON
     private String password;    // Contraseña del usuario
 
-    @JsonIgnore
+    @JsonView(OwnView.class)
     private Set<Suscripcion> suscripcionesCompradas = new HashSet<>();     // Suscripciones del usuario
-    @JsonIgnore
+
+    @JsonView(ExternalView.class)
     private HashMap<String,Leccion> leccionesCreadas = new HashMap<>();   // Lecciones creadas por el usuario
 
     // Constructor
     public Usuario() {
-        this.suscripcionesCompradas = new HashSet<>();
-        this.leccionesCreadas = new HashMap<>();
     }
 
     // Con ID (para obtener usuarios existentes)
@@ -38,8 +54,6 @@ public class Usuario {
         this.apellido2 = apellido2;
         this.email = email;
         this.password = password;
-        this.suscripcionesCompradas = new HashSet<>();
-        this.leccionesCreadas = new HashMap<>();
     }
 
     // Getters and Setters

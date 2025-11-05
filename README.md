@@ -1,5 +1,15 @@
 # Proyecto Mentory
-- Descripción: Un servicio tipo marketplace de habilidades, donde cualquier persona puede ofrecer enseñar lo que sabe, y los demás pueden aprender de manera flexible.
+_Proyecto para la asignatura de Ingeniería de Servicios._
 
-- ** mirar JSON pathc y paginacion. hacer primero paginacion
-- ** hibernate validator
+En este se desarrolla una API RESTful utilizando Spring Boot.
+
+**Cosas que nos faltan por mirar:**
+> - Paginación para dividir los resultados en varias páginas.
+> - Personalización de la Serialización con Jackson.
+> - Hibernate Validator
+
+**Implementaciones necesarias:**
+> - Método para suscribirse (eliminar el POST)
+
+**Cosas extra que se podrían añadir:**
+> - Busqueda avanzada por coincidencia parcial.

@@ -7,6 +7,8 @@ import com.mentory.ense_proyect.repository.HabilidadRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
 
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
@@ -14,6 +16,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.github.fge.jsonpatch.JsonPatchOperation;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 
@@ -32,7 +37,8 @@ public class HabilidadService {
                     new Habilidad( "trabajo-en-equipo", "Habilidad para colaborar con otros hacia un objetivo común."),
                     new Habilidad( "liderazgo", "Capacidad para guiar, motivar y coordinar a un grupo."),
                     new Habilidad( "creatividad", "Generación de ideas nuevas o enfoques originales para resolver problemas."),
-                    new Habilidad( "autodisciplina", "Mantener constancia y compromiso con los objetivos.")
+                    new Habilidad( "autodisciplina", "Mantener constancia y compromiso con los objetivos."),
+                    new Habilidad( "autoconvicción", "Mantener constancia y compromiso con los objetivos.")
             ));
         }
     }
@@ -46,8 +52,9 @@ public class HabilidadService {
         }
     }
 
-    public Set<Habilidad> getHabilidades() {
-        return new HashSet<>(habilidadRepository.findAll());
+    public Page<@NonNull Habilidad> getHabilidades(@Nullable String nombre, PageRequest page) {
+        Example<Habilidad> example = Example.of(new Habilidad(nombre, null));
+        return habilidadRepository.findAll(example, page);
     }
 
     public Habilidad getHabilidad(String id) throws HabilidadNotFoundException {

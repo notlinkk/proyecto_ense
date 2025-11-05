@@ -1,28 +1,24 @@
 package com.mentory.ense_proyect.controller;
 
-import com.github.fge.jsonpatch.JsonPatchException;
-import com.github.fge.jsonpatch.JsonPatchOperation;
-import com.mentory.ense_proyect.exception.DuplicatedHabilidadException;
 import com.mentory.ense_proyect.exception.DuplicatedUsuarioException;
-import com.mentory.ense_proyect.exception.HabilidadNotFoundException;
 import com.mentory.ense_proyect.exception.UsuarioNotFoundException;
-import com.mentory.ense_proyect.model.Habilidad;
 import com.mentory.ense_proyect.model.Usuario;
-import com.mentory.ense_proyect.service.HabilidadService;
 import com.mentory.ense_proyect.service.UsuarioService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.jspecify.annotations.NonNull;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
-import java.util.List;
-import java.util.Set;
+import com.fasterxml.jackson.annotation.JsonView;
+
+import com.github.fge.jsonpatch.JsonPatchException;
+import com.github.fge.jsonpatch.JsonPatchOperation;
+
+import java.util.*;
 
 @RestController
 @RequestMapping("users")
@@ -40,15 +36,33 @@ public class UsuarioController {
     }
 
     @GetMapping
-    public ResponseEntity<Set<Usuario>> getUsers() {
-        Set<Usuario> users = usuarioService.getUsers();
-        if (users.isEmpty()) {
+    public ResponseEntity<Page<Usuario>> getUsers(
+            @RequestParam(value="nombre", required=false) String nombre,
+            @RequestParam(value="page", required=false, defaultValue="0") int page,
+            @RequestParam(value="size", required=false, defaultValue="2") int pagesize,
+            @RequestParam(value="sort", required=false, defaultValue="") List<String> sort
+    ) {
+        Page<Usuario> usuarios = usuarioService.getUsers(
+                nombre,
+                PageRequest.of(
+                        page, pagesize,
+                        Sort.by(sort.stream()
+                                .map(key -> key.startsWith("-") ?
+                                        Sort.Order.desc(key.substring(1)) :
+                                        Sort.Order.asc(key))
+                                .toList()
+                        )
+                )
+        );
+
+        if (usuarios.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok(users);
+        return ResponseEntity.ok(usuarios);
     }
 
     @PostMapping
+    @JsonView(Usuario.CreateView.class)
     public ResponseEntity<Usuario> createUser(@RequestBody Usuario usuario) throws DuplicatedUsuarioException {
         Usuario nuevoUsuario = usuarioService.addUser(usuario);
         return ResponseEntity

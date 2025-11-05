@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import com.github.fge.jsonpatch.JsonPatchOperation;
 import com.github.fge.jsonpatch.JsonPatchException;
@@ -32,8 +35,25 @@ public class ModuloController {
     }
 
     @GetMapping
-    public ResponseEntity<Set<Modulo>> getModulos() {
-        Set<Modulo> modulos = moduloService.getModulos();
+    public ResponseEntity<Page<Modulo>> getModulos(
+            @RequestParam(value="nombre", required=false) String nombre,
+            @RequestParam(value="page", required=false, defaultValue="0") int page,
+            @RequestParam(value="size", required=false, defaultValue="2") int pagesize,
+            @RequestParam(value="sort", required=false, defaultValue="") List<String> sort
+    ) {
+        Page<Modulo> modulos = moduloService.getModulos(
+                nombre,
+                PageRequest.of(
+                        page, pagesize,
+                        Sort.by(sort.stream()
+                                .map(key -> key.startsWith("-") ?
+                                        Sort.Order.desc(key.substring(1)) :
+                                        Sort.Order.asc(key))
+                                .toList()
+                        )
+                )
+        );
+
         if (modulos.isEmpty()) {
             return ResponseEntity.noContent().build();
         }

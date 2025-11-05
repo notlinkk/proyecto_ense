@@ -7,6 +7,8 @@ import com.mentory.ense_proyect.repository.LeccionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
 
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
@@ -14,6 +16,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.github.fge.jsonpatch.JsonPatchOperation;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 
@@ -39,8 +44,9 @@ public class LeccionService {
         }
     }
 
-    public Set<Leccion> getLecciones(){
-        return new HashSet<>(leccionRepository.findAll());
+    public Page<@NonNull Leccion> getLecciones(@Nullable String nombre, PageRequest page) {
+        Example<Leccion> example = Example.of(new Leccion(nombre, null, null));
+        return leccionRepository.findAll(example, page);
     }
 
     public Leccion getLeccion(String id) throws LeccionNotFoundException {

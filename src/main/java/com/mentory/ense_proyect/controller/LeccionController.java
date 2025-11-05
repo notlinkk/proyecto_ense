@@ -5,18 +5,18 @@ import com.mentory.ense_proyect.exception.DuplicatedLeccionException;
 import com.mentory.ense_proyect.model.Leccion;
 import com.mentory.ense_proyect.repository.LeccionRepository;
 import com.mentory.ense_proyect.service.LeccionService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
-import org.jspecify.annotations.NonNull;
-import com.github.fge.jsonpatch.JsonPatch;
-import com.github.fge.jsonpatch.JsonPatchException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.github.fge.jsonpatch.JsonPatchOperation;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
+import com.github.fge.jsonpatch.JsonPatchException;
+import com.github.fge.jsonpatch.JsonPatchOperation;
 
 import java.util.List;
 import java.util.Set;
@@ -39,8 +39,25 @@ public class LeccionController {
     }
 
     @GetMapping
-    public ResponseEntity<Set<Leccion>> getLecciones() {
-        Set<Leccion> lecciones = leccionService.getLecciones();
+    public ResponseEntity<Page<Leccion>> getLecciones(
+            @RequestParam(value="nombre", required=false) String nombre,
+            @RequestParam(value="page", required=false, defaultValue="0") int page,
+            @RequestParam(value="size", required=false, defaultValue="2") int pagesize,
+            @RequestParam(value="sort", required=false, defaultValue="") List<String> sort
+    ) {
+        Page<Leccion> lecciones = leccionService.getLecciones(
+                nombre,
+                PageRequest.of(
+                        page, pagesize,
+                        Sort.by(sort.stream()
+                                .map(key -> key.startsWith("-") ?
+                                        Sort.Order.desc(key.substring(1)) :
+                                        Sort.Order.asc(key))
+                                .toList()
+                        )
+                )
+        );
+
         if (lecciones.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
