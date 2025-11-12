@@ -13,7 +13,6 @@ import org.springframework.data.domain.Page;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.github.fge.jsonpatch.JsonPatchOperation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

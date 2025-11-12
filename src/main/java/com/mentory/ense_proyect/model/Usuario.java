@@ -6,17 +6,19 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 @Document(collection = "usuarios")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 
 public class Usuario {
     public interface CreateView {}                          // Vista para la creación del usuario
-    public interface ExternalView extends CreateView {}     // Vista propia del usuario
-    public interface OwnView extends  ExternalView {}         // Vista externa del usuario
+    public interface ExternalView extends CreateView {}     // Vista externa del usuario
+    public interface OwnView extends  ExternalView {}         // Vista propia del usuario
 
     @Id @JsonView(CreateView.class)
     private String username;      // ID único del usuario, empleado como nickname del usuario en el servicio

@@ -1,7 +1,6 @@
 package com.mentory.ense_proyect.service;
 
 import com.mentory.ense_proyect.exception.*;
-import com.mentory.ense_proyect.model.Habilidad;
 import com.mentory.ense_proyect.model.Modulo;
 import com.mentory.ense_proyect.repository.ModuloRepository;
 
@@ -14,7 +13,6 @@ import org.springframework.data.domain.Page;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.github.fge.jsonpatch.JsonPatchOperation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

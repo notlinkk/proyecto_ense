@@ -1,19 +1,39 @@
 package com.mentory.ense_proyect.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "suscripciones")
-
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Suscripcion {
-    @Id private String id;      // Generado automáticamente por MongoDB
+
+    public interface CreateView {}                          // Vista para la creación del usuario
+    public interface ExternalView extends CreateView {}     // Vista externa del usuario
+    public interface OwnView extends  ExternalView {} 
+
+    @Id @JsonView(CreateView.class)
+    private String id;      
     //private String plan;      Añadir en posteriores actualizaciones
+    @JsonView(OwnView.class)
     private String fechaInicio; // Fecha de inicio de la suscripción
+    
+    @JsonView(OwnView.class)
     private String fechaFin;    // Fecha de fin de la suscripción
+    
+    @JsonView(OwnView.class)
     private double precio;       // Precio de la suscripción
+    
+    @JsonView(OwnView.class)
     private boolean activa;     // Estado de la suscripción
 
+    @JsonView(CreateView.class)
     private Usuario comprador;
+
+    @JsonView(OwnView.class)
     private Leccion leccionAsociada;
 
     // Constructor vacio

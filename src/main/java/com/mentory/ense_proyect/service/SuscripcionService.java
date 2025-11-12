@@ -13,7 +13,6 @@ import org.springframework.data.domain.Page;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.github.fge.jsonpatch.JsonPatchOperation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -31,8 +30,6 @@ public class SuscripcionService {
     public SuscripcionService(SuscripcionRepository suscripcionRepository, ObjectMapper mapper) {
         this.suscripcionRepository = suscripcionRepository;
         this.mapper=mapper;
-
-        suscripcionRepository.save(new Suscripcion("15/10/2023","15/10/2024", 20.0, true,"us10" ,"l1"));
     }
 
     // CRUD
