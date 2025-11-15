@@ -1,4 +1,4 @@
-package com.mentory.ense_proyect.configuration;
+/*package com.mentory.ense_proyect.configuration;
 
 import com.mentory.ense_proyect.filter.JWTFilter;
 import com.mentory.ense_proyect.configuration.AuthenticationConfiguration;
@@ -44,4 +44,4 @@ public class SecurityConfiguration {
     public RoleHierarchy roleHierarchy() {
         return authenticationService.loadRoleHierarchy();
     }
-}
+}*/

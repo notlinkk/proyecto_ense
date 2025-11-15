@@ -1,8 +1,8 @@
 package com.mentory.ense_proyect.exception;
 
-public class UsuarioNotFoundException extends Throwable {
+public class UserNotFoundException extends Throwable {
     private final String username;
-    public UsuarioNotFoundException(String username) {
+    public UserNotFoundException(String username) {
         super("Usuario no encontrado con el id: " + username);
         this.username= username;
     }

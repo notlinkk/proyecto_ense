@@ -2,6 +2,8 @@ package com.mentory.ense_proyect.controller;
 
 import com.github.fge.jsonpatch.JsonPatchException;
 import com.mentory.ense_proyect.exception.*;
+import com.mentory.ense_proyect.model.Ability;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -15,34 +17,34 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @RestControllerAdvice
 public class ErrorController extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(HabilidadNotFoundException.class)
-    public ErrorResponse handle(HabilidadNotFoundException ex) {
+    @ExceptionHandler(AbilityNotFoundException.class)
+    public ErrorResponse handle(AbilityNotFoundException ex) {
         ProblemDetail error = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
-        error.setDetail("La habilidad '"+ex.getNombre()+"' no se encuentra en la base de datos. Verifica el nombre e inténtalo de nuevo.");
+        error.setDetail("La habilidad '"+ex.getName()+"' no se encuentra en la base de datos. Verifica el nombre e inténtalo de nuevo.");
         error.setType(MvcUriComponentsBuilder.fromController(ErrorController.class).pathSegment("error", "habilidad-no-encontrada").build().toUri());
-        error.setTitle("Habilidad "+ex.getNombre()+" no encontrada");
+        error.setTitle("Habilidad "+ex.getName()+" no encontrada");
 
         return ErrorResponse.builder(ex, error).build();
     }
 
-    @ExceptionHandler(DuplicatedHabilidadException.class)
-    public ErrorResponse handle(DuplicatedHabilidadException ex) {
+    @ExceptionHandler(DuplicatedAbilityException.class)
+    public ErrorResponse handle(DuplicatedAbilityException ex) {
         ProblemDetail error = ProblemDetail.forStatus(HttpStatus.CONFLICT);
-        error.setDetail("Ya existe una habilidad con el nombre '"+ex.getHabilidad().nombre()+"' en la base de datos: "+ex.getHabilidad());
+        error.setDetail("Ya existe una habilidad con el nombre '"+ex.getAbility().name()+"' en la base de datos: "+ex.getAbility());
         error.setType(MvcUriComponentsBuilder.fromController(ErrorController.class).pathSegment("error", "habilidad-duplicada").build().toUri());
-        error.setTitle("Habilidad "+ex.getHabilidad().nombre()+" ya existe");
+        error.setTitle("Habilidad "+ex.getAbility().name()+" ya existe");
 
         return ErrorResponse.builder(ex, error)
                 .header(HttpHeaders.LOCATION, MvcUriComponentsBuilder.fromMethodName(
-                                HabilidadController.class,
+                                AbilityController.class,
                                 "getHabilidad",
-                                ex.getHabilidad().nombre()
+                                ex.getAbility().name()
                         ).build().toUriString())
                 .build();
     }
 
-    @ExceptionHandler(LeccionNotFoundException.class)
-    public ErrorResponse handle(LeccionNotFoundException ex) {
+    @ExceptionHandler(LessonNotFoundException.class)
+    public ErrorResponse handle(LessonNotFoundException ex) {
         ProblemDetail error = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
         error.setDetail("La lección con id="+ex.getId()+" no se encuentra en la base de datos. Verifica el identificador.");
         error.setType(MvcUriComponentsBuilder.fromController(ErrorController.class).pathSegment("error", "leccion-no-encontrada").build().toUri());
@@ -51,25 +53,25 @@ public class ErrorController extends ResponseEntityExceptionHandler {
         return ErrorResponse.builder(ex, error).build();
     }
 
-    @ExceptionHandler(DuplicatedLeccionException.class)
-    public ErrorResponse handle(DuplicatedLeccionException ex) {
+    @ExceptionHandler(DuplicatedLessonException.class)
+    public ErrorResponse handle(DuplicatedLessonException ex) {
         ProblemDetail error = ProblemDetail.forStatus(HttpStatus.CONFLICT);
-        error.setDetail("Ya existe una lección con id="+ex.getLeccion().getId()+" en la base de datos: "+ex.getLeccion());
+        error.setDetail("Ya existe una lección con id="+ex.getLesson().getId()+" en la base de datos: "+ex.getLesson());
         error.setType(MvcUriComponentsBuilder.fromController(ErrorController.class).pathSegment("error", "leccion-duplicada").build().toUri());
-        error.setTitle("Lección "+ex.getLeccion().getId()+" ya existe");
+        error.setTitle("Lección "+ex.getLesson().getId()+" ya existe");
 
         return ErrorResponse.builder(ex, error)
                 .header(HttpHeaders.LOCATION,
                         MvcUriComponentsBuilder.fromMethodName(
-                                LeccionController.class,
+                                LessonController.class,
                                 "getLeccion",
-                                ex.getLeccion().getId()
+                                ex.getLesson().getId()
                         ).build().toUriString())
                 .build();
     }
 
-    @ExceptionHandler(ModuloNotFoundException.class)
-    public ErrorResponse handle(ModuloNotFoundException ex) {
+    @ExceptionHandler(ModuleNotFoundException.class)
+    public ErrorResponse handle(ModuleNotFoundException ex) {
         ProblemDetail error = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
         error.setDetail("El módulo con id="+ex.getId()+" no se encuentra en la base de datos.");
         error.setType(MvcUriComponentsBuilder.fromController(ErrorController.class)
@@ -79,26 +81,26 @@ public class ErrorController extends ResponseEntityExceptionHandler {
         return ErrorResponse.builder(ex, error).build();
     }
 
-    @ExceptionHandler(DuplicatedModuloException.class)
-    public ErrorResponse handle(DuplicatedModuloException ex) {
+    @ExceptionHandler(DuplicatedModuleException.class)
+    public ErrorResponse handle(DuplicatedModuleException ex) {
         ProblemDetail error = ProblemDetail.forStatus(HttpStatus.CONFLICT);
-        error.setDetail("Ya existe un módulo con id="+ex.getModulo().getId()+" en la base de datos: "+ex.getModulo());
+        error.setDetail("Ya existe un módulo con id="+ex.getModule().getId()+" en la base de datos: "+ex.getModule());
         error.setType(MvcUriComponentsBuilder.fromController(ErrorController.class)
                 .pathSegment("error", "modulo-duplicado").build().toUri());
-        error.setTitle("Módulo "+ex.getModulo().getId()+" ya existe");
+        error.setTitle("Módulo "+ex.getModule().getId()+" ya existe");
 
         return ErrorResponse.builder(ex, error)
                 .header(HttpHeaders.LOCATION,
                         MvcUriComponentsBuilder.fromMethodName(
-                                ModuloController.class,
+                                ModuleController.class,
                                 "getModulo",
-                                ex.getModulo().getId()
+                                ex.getModule().getId()
                         ).build().toUriString())
                 .build();
     }
 
-    @ExceptionHandler(SuscripcionNotFoundException.class)
-    public ErrorResponse handle(SuscripcionNotFoundException ex) {
+    @ExceptionHandler(SubscriptionNotFoundException.class)
+    public ErrorResponse handle(SubscriptionNotFoundException ex) {
         ProblemDetail error = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
         error.setDetail("La suscripción con id="+ex.getId()+" no se encuentra en la base de datos.");
         error.setType(MvcUriComponentsBuilder.fromController(ErrorController.class)
@@ -108,26 +110,26 @@ public class ErrorController extends ResponseEntityExceptionHandler {
         return ErrorResponse.builder(ex, error).build();
     }
 
-    @ExceptionHandler(DuplicatedSuscripcionException.class)
-    public ErrorResponse handle(DuplicatedSuscripcionException ex) {
+    @ExceptionHandler(DuplicatedSubscriptionException.class)
+    public ErrorResponse handle(DuplicatedSubscriptionException ex) {
         ProblemDetail error = ProblemDetail.forStatus(HttpStatus.CONFLICT);
-        error.setDetail("Ya existe una suscripción con id="+ex.getSuscripcion().getId()+" en la base de datos: "+ex.getSuscripcion());
+        error.setDetail("Ya existe una suscripción con id="+ex.getSubscription().getId()+" en la base de datos: "+ex.getSubscription());
         error.setType(MvcUriComponentsBuilder.fromController(ErrorController.class)
                 .pathSegment("error", "suscripcion-duplicada").build().toUri());
-        error.setTitle("Suscripción "+ex.getSuscripcion().getId()+" ya existe");
+        error.setTitle("Suscripción "+ex.getSubscription().getId()+" ya existe");
 
         return ErrorResponse.builder(ex, error)
                 .header(HttpHeaders.LOCATION,
                         MvcUriComponentsBuilder.fromMethodName(
-                                SuscripcionController.class,
+                                SubscriptionController.class,
                                 "getSuscripcion",
-                                ex.getSuscripcion().getId()
+                                ex.getSubscription().getId()
                         ).build().toUriString())
                 .build();
     }
 
-    @ExceptionHandler(UsuarioNotFoundException.class)
-    public ErrorResponse handle(UsuarioNotFoundException ex) {
+    @ExceptionHandler(UserNotFoundException.class)
+    public ErrorResponse handle(UserNotFoundException ex) {
         ProblemDetail error = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
         error.setDetail("El usuario "+ex.getUsername()+" no se encuentra en la base de datos. Verifica el nombre de usuario.");
         error.setType(MvcUriComponentsBuilder.fromController(ErrorController.class)
@@ -137,20 +139,20 @@ public class ErrorController extends ResponseEntityExceptionHandler {
         return ErrorResponse.builder(ex, error).build();
     }
 
-    @ExceptionHandler(DuplicatedUsuarioException.class)
-    public ErrorResponse handle(DuplicatedUsuarioException ex) {
+    @ExceptionHandler(DuplicatedUserException.class)
+    public ErrorResponse handle(DuplicatedUserException ex) {
         ProblemDetail error = ProblemDetail.forStatus(HttpStatus.CONFLICT);
-        error.setDetail("Ya existe un usuario con nombre "+ex.getUsuario().getUsername()+" en la base de datos: "+ex.getUsuario());
+        error.setDetail("Ya existe un usuario con nombre "+ex.getUser().getUsername()+" en la base de datos: "+ex.getUser());
         error.setType(MvcUriComponentsBuilder.fromController(ErrorController.class)
                 .pathSegment("error", "usuario-duplicado").build().toUri());
-        error.setTitle("Usuario "+ex.getUsuario().getUsername()+" ya existe");
+        error.setTitle("Usuario "+ex.getUser().getUsername()+" ya existe");
 
         return ErrorResponse.builder(ex, error)
                 .header(HttpHeaders.LOCATION,
                         MvcUriComponentsBuilder.fromMethodName(
-                                UsuarioController.class,
+                                UserController.class,
                                 "getUsuario",
-                                ex.getUsuario().getUsername()
+                                ex.getUser().getUsername()
                         ).build().toUriString())
                 .build();
     }

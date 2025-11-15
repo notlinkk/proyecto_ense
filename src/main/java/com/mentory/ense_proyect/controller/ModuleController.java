@@ -1,9 +1,9 @@
 package com.mentory.ense_proyect.controller;
 
-import com.mentory.ense_proyect.exception.DuplicatedModuloException;
-import com.mentory.ense_proyect.exception.ModuloNotFoundException;
-import com.mentory.ense_proyect.model.Modulo;
-import com.mentory.ense_proyect.service.ModuloService;
+import com.mentory.ense_proyect.exception.DuplicatedModuleException;
+import com.mentory.ense_proyect.exception.ModuleNotFoundException;
+import com.mentory.ense_proyect.model.Module;
+import com.mentory.ense_proyect.service.ModuleService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,28 +20,28 @@ import java.util.*;
 
 
 @RestController
-@RequestMapping("modulos")
-public class ModuloController {
-    ModuloService moduloService;
+@RequestMapping("modules")
+public class ModuleController {
+    ModuleService moduleService;
 
     @Autowired
-    public ModuloController(ModuloService moduloService) {
-        this.moduloService = moduloService;
+    public ModuleController(ModuleService moduleService) {
+        this.moduleService = moduleService;
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<Modulo> getModulo(@PathVariable("id") String id) throws ModuloNotFoundException {
-        return ResponseEntity.ok(moduloService.getModulo(id));
+    public ResponseEntity<Module> getModulo(@PathVariable("id") String id) throws ModuleNotFoundException {
+        return ResponseEntity.ok(moduleService.getModule(id));
     }
 
     @GetMapping
-    public ResponseEntity<Page<Modulo>> getModulos(
+    public ResponseEntity<Page<Module>> getModules(
             @RequestParam(value="nombre", required=false) String nombre,
             @RequestParam(value="page", required=false, defaultValue="0") int page,
             @RequestParam(value="size", required=false, defaultValue="2") int pagesize,
             @RequestParam(value="sort", required=false, defaultValue="") List<String> sort
     ) {
-        Page<Modulo> modulos = moduloService.getModulos(
+        Page<Module> modules = moduleService.getModules(
                 nombre,
                 PageRequest.of(
                         page, pagesize,
@@ -54,34 +54,34 @@ public class ModuloController {
                 )
         );
 
-        if (modulos.isEmpty()) {
+        if (modules.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok(modulos);
+        return ResponseEntity.ok(modules);
     }
 
     @PostMapping
-    public ResponseEntity<Modulo> createModulo(@RequestBody Modulo modulo) throws DuplicatedModuloException {
-        Modulo newModulo = moduloService.addModulo(modulo);
+    public ResponseEntity<Module> createModule(@RequestBody Module module) throws DuplicatedModuleException {
+        Module newModule = moduleService.addModule(module);
         return ResponseEntity
                 .created(MvcUriComponentsBuilder
-                        .fromMethodName(ModuloController.class, "getModulo", modulo.getId())
+                        .fromMethodName(ModuleController.class, "getModule", module.getId())
                         .build()
                         .toUri())
-                .body(newModulo);
+                .body(newModule);
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Void> deleteModulo(@PathVariable("id") String id) throws ModuloNotFoundException {
-        moduloService.deleteModulo(id);
+    public ResponseEntity<Void> deleteModule(@PathVariable("id") String id) throws ModuleNotFoundException {
+        moduleService.deleteModule(id);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("{id}")
-    public ResponseEntity<Modulo> updateModulo(
+    public ResponseEntity<Module> updateModule(
             @PathVariable("id") String id,
             @RequestBody List<JsonPatchOperation> changes
-        ) throws ModuloNotFoundException, JsonPatchException {
-        return ResponseEntity.ok(moduloService.updateModulo(id, changes));
+        ) throws ModuleNotFoundException, JsonPatchException {
+        return ResponseEntity.ok(moduleService.updateModule(id, changes));
     }
 }

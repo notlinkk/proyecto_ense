@@ -1,0 +1,138 @@
+package com.mentory.ense_proyect.model;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import org.jspecify.annotations.NonNull;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+
+@Document(collection = "users")
+@JsonInclude(JsonInclude.Include.NON_NULL)
+
+public class User implements UserDetails{
+    public interface CreateView {}                          // Vista para la creación del usuario
+    public interface ExternalView extends CreateView {}     // Vista externa del usuario
+    public interface OwnView extends  ExternalView {}         // Vista propia del usuario
+
+    @Id @JsonView(CreateView.class)
+    private String username;      // ID único del usuario, empleado como nickname del usuario en el servicio
+
+    @JsonView(CreateView.class)
+    private String name;      // Nombre del usuario
+
+    @JsonView(CreateView.class)
+    private String surname1;   // Primer apellido del usuario
+
+    @JsonView(CreateView.class)
+    private String surname2;   // Segundo apellido del usuario
+
+    @JsonView(CreateView.class)
+    private String email;       // Correo electrónico del usuario
+
+    @JsonIgnore                 // No se serializa la contraseña al convertir a JSON
+    private String password;    // Contraseña del usuario
+
+    @JsonView(OwnView.class)
+    private Set<Subscription> subscriptions = new HashSet<>();     // Suscripciones del usuario
+
+    @JsonView(ExternalView.class)
+    private HashMap<String,Lesson> lessons = new HashMap<>();   // Lecciones creadas por el usuario
+
+    private Set<Role> roles;
+    // Constructor
+    public User() {
+    }
+
+    // Con ID (para obtener usuarios existentes)
+    public User(String username, String name, String surname1, String surname2, String email, String password) {
+        this.username=username;
+        this.name = name;
+        this.surname1 = surname1;
+        this.surname2 = surname2;
+        this.email = email;
+        this.password = password;
+    }
+
+    @Override
+    @NonNull
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return roles.stream().map(role -> new SimpleGrantedAuthority("ROLE_"+role.getRolename())).toList();
+    }
+
+
+    // Getters and Setters
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String id) {
+        this.username = id;
+    }
+
+    public String getSurname1() {
+        return surname1;
+    }
+
+    public void setSurname1(String apellido1) {
+        this.surname1 = apellido1;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String nombre) {
+        this.name = nombre;
+    }
+
+    public String getSurname2() {
+        return surname2;
+    }
+
+    public void setSurname2(String apellido2) {
+        this.surname2 = apellido2;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Set<Subscription> getSubscriptions() {
+        return subscriptions;
+    }
+
+    public void setSubscriptions(Set<Subscription> suscripcionesCompradas) {
+        this.subscriptions = suscripcionesCompradas;
+    }
+
+    public HashMap<String, Lesson> getLessons() {
+        return lessons;
+    }
+
+    public void setLessons(HashMap<String, Lesson> leccionesCreadas) {
+        this.lessons = leccionesCreadas;
+    }
+}

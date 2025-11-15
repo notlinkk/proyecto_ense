@@ -1,9 +1,9 @@
 package com.mentory.ense_proyect.controller;
 
-import com.mentory.ense_proyect.exception.DuplicatedHabilidadException;
-import com.mentory.ense_proyect.exception.HabilidadNotFoundException;
-import com.mentory.ense_proyect.model.Habilidad;
-import com.mentory.ense_proyect.service.HabilidadService;
+import com.mentory.ense_proyect.exception.DuplicatedAbilityException;
+import com.mentory.ense_proyect.exception.AbilityNotFoundException;
+import com.mentory.ense_proyect.model.Ability;
+import com.mentory.ense_proyect.service.AbilityService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,28 +19,28 @@ import com.github.fge.jsonpatch.JsonPatchException;
 import java.util.*;
 
 @RestController
-@RequestMapping("habilidades")
-public class HabilidadController {
-    HabilidadService habilidadService;
+@RequestMapping("abilities")
+public class AbilityController {
+    AbilityService AbilityService;
 
     @Autowired
-    public HabilidadController(HabilidadService habilidadService) {
-        this.habilidadService = habilidadService;
+    public AbilityController(AbilityService AbilityService) {
+        this.AbilityService = AbilityService;
     }
 
     @GetMapping("{id}")
-    public ResponseEntity <Habilidad> getHabilidad(@PathVariable("id") String id) throws HabilidadNotFoundException {
-        return ResponseEntity.ok(habilidadService.getHabilidad(id));
+    public ResponseEntity <Ability> getAbility(@PathVariable("id") String id) throws AbilityNotFoundException {
+        return ResponseEntity.ok(AbilityService.getAbility(id));
     }
 
     @GetMapping
-    public ResponseEntity<Page<Habilidad>> getHabilidades(
+    public ResponseEntity<Page<Ability>> getAbilityes(
             @RequestParam(value="nombre", required=false) String nombre,
             @RequestParam(value="page", required=false, defaultValue="0") int page,
             @RequestParam(value="size", required=false, defaultValue="2") int pagesize,
             @RequestParam(value="sort", required=false, defaultValue="") List<String> sort
     ) {
-        Page<Habilidad> habilidades = habilidadService.getHabilidades(
+        Page<Ability> Abilityes = AbilityService.getAbilities(
                 nombre,
                 PageRequest.of(
                         page, pagesize,
@@ -53,35 +53,35 @@ public class HabilidadController {
                 )
         );
 
-        if (habilidades.isEmpty()) {
+        if (Abilityes.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok(habilidades);
+        return ResponseEntity.ok(Abilityes);
     }
 
     @PostMapping
-    public ResponseEntity<Habilidad> createHabilidad(@RequestBody Habilidad habilidad) throws DuplicatedHabilidadException {
-            Habilidad nuevaHabilidad = habilidadService.createHabilidad(habilidad);
+    public ResponseEntity<Ability> createAbility(@RequestBody Ability Ability) throws DuplicatedAbilityException {
+            Ability nuevaAbility = AbilityService.createAbility(Ability);
             return ResponseEntity
                     .created(MvcUriComponentsBuilder
-                            .fromMethodName(HabilidadController.class, "getHabilidad", habilidad.nombre())
+                            .fromMethodName(AbilityController.class, "getAbility", Ability.name())
                             .build()
                             .toUri())
-                    .body(nuevaHabilidad);
+                    .body(nuevaAbility);
     }
 
     @DeleteMapping({"{id}"})
-    public ResponseEntity<Void> deleteHabilidad(@PathVariable("id") String id) throws HabilidadNotFoundException {
-        habilidadService.deleteHabilidad(id);
+    public ResponseEntity<Void> deleteAbility(@PathVariable("id") String id) throws AbilityNotFoundException {
+        AbilityService.deleteAbility(id);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("{id}")
-    public ResponseEntity<Habilidad> updateHabilidad(
+    public ResponseEntity<Ability> updateAbility(
             @PathVariable("id") String id,
             @RequestBody List<JsonPatchOperation> changes
-            ) throws HabilidadNotFoundException, JsonPatchException {
-        return ResponseEntity.ok(habilidadService.updateHabilidad(id, changes));
+            ) throws AbilityNotFoundException, JsonPatchException {
+        return ResponseEntity.ok(AbilityService.updateAbility(id, changes));
     }
 }
 

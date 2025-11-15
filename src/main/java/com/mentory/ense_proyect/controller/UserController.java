@@ -1,10 +1,9 @@
 package com.mentory.ense_proyect.controller;
 
-import com.mentory.ense_proyect.exception.LeccionNotFoundException;
-import com.mentory.ense_proyect.exception.DuplicatedLeccionException;
-import com.mentory.ense_proyect.model.Leccion;
-import com.mentory.ense_proyect.repository.LeccionRepository;
-import com.mentory.ense_proyect.service.LeccionService;
+import com.mentory.ense_proyect.exception.DuplicatedUserException;
+import com.mentory.ense_proyect.exception.UserNotFoundException;
+import com.mentory.ense_proyect.model.User;
+import com.mentory.ense_proyect.service.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,37 +13,36 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
 import com.github.fge.jsonpatch.JsonPatchException;
 import com.github.fge.jsonpatch.JsonPatchOperation;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @RestController
-@RequestMapping("lecciones")
-public class LeccionController {
-    private final LeccionRepository leccionRepository;
-    LeccionService leccionService;
+@RequestMapping("users")
+public class UserController {
+    UserService userService;
 
     @Autowired
-    public LeccionController(LeccionService leccionService, LeccionRepository leccionRepository) {
-        this.leccionService = leccionService;
-        this.leccionRepository = leccionRepository;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
     @GetMapping("{id}")
-    public ResponseEntity getLeccion(@PathVariable("id") String id) throws LeccionNotFoundException {
-        return ResponseEntity.ok(leccionService.getLeccion(id));
+    public ResponseEntity <User> getUser(@PathVariable("id") String id) throws UserNotFoundException {
+        return ResponseEntity.ok(userService.getUser(id));
     }
 
     @GetMapping
-    public ResponseEntity<Page<Leccion>> getLecciones(
+    public ResponseEntity<Page<User>> getUsers(
             @RequestParam(value="nombre", required=false) String nombre,
             @RequestParam(value="page", required=false, defaultValue="0") int page,
             @RequestParam(value="size", required=false, defaultValue="2") int pagesize,
             @RequestParam(value="sort", required=false, defaultValue="") List<String> sort
     ) {
-        Page<Leccion> lecciones = leccionService.getLecciones(
+        Page<User> users = userService.getUsers(
                 nombre,
                 PageRequest.of(
                         page, pagesize,
@@ -57,35 +55,35 @@ public class LeccionController {
                 )
         );
 
-        if (lecciones.isEmpty()) {
+        if (users.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok(lecciones);
+        return ResponseEntity.ok(users);
     }
 
     @PostMapping
-    public ResponseEntity<Leccion> createLeccion(@RequestBody Leccion leccion) throws DuplicatedLeccionException {
-        Leccion newLeccion = leccionService.addLeccion(leccion);
+    @JsonView(User.CreateView.class)
+    public ResponseEntity<User> createUser(@RequestBody User users) throws DuplicatedUserException {
+        User newUser = userService.addUser(users);
         return ResponseEntity
                 .created(MvcUriComponentsBuilder
-                        .fromMethodName(LeccionController.class, "getLeccion", leccion.getId())
+                        .fromMethodName(UserController.class, "getUser", users.getUsername())
                         .build()
                         .toUri())
-                .body(newLeccion);
+                .body(newUser);
     }
 
     @DeleteMapping({"{id}"})
-    public ResponseEntity<Void> deleteLeccion(@PathVariable("id") String id) throws LeccionNotFoundException {
-        leccionService.deleteLeccion(id);
+    public ResponseEntity<Void> deleteUser(@PathVariable("id") String id) throws UserNotFoundException {
+        userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("{id}" )
-    public ResponseEntity<Leccion> updateLeccion(
+    @PatchMapping("{id}")
+    public ResponseEntity<User> updateUser(
             @PathVariable("id") String id,
             @RequestBody List<JsonPatchOperation> changes
-    ) throws LeccionNotFoundException, JsonPatchException {
-        return ResponseEntity.ok(leccionService.updateLeccion(id, changes));
+    ) throws UserNotFoundException, JsonPatchException {
+        return ResponseEntity.ok(userService.updateUser(id, changes));
     }
-
 }
