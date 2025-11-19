@@ -30,15 +30,15 @@ public class ErrorController extends ResponseEntityExceptionHandler {
     @ExceptionHandler(DuplicatedAbilityException.class)
     public ErrorResponse handle(DuplicatedAbilityException ex) {
         ProblemDetail error = ProblemDetail.forStatus(HttpStatus.CONFLICT);
-        error.setDetail("Ya existe una habilidad con el nombre '"+ex.getAbility().name()+"' en la base de datos: "+ex.getAbility());
+        error.setDetail("Ya existe una habilidad con el nombre '"+ex.getAbility().getName()+"' en la base de datos: "+ex.getAbility());
         error.setType(MvcUriComponentsBuilder.fromController(ErrorController.class).pathSegment("error", "habilidad-duplicada").build().toUri());
-        error.setTitle("Habilidad "+ex.getAbility().name()+" ya existe");
+        error.setTitle("Habilidad "+ex.getAbility().getName()+" ya existe");
 
         return ErrorResponse.builder(ex, error)
                 .header(HttpHeaders.LOCATION, MvcUriComponentsBuilder.fromMethodName(
                                 AbilityController.class,
                                 "getHabilidad",
-                                ex.getAbility().name()
+                                ex.getAbility().getName()
                         ).build().toUriString())
                 .build();
     }

@@ -2,17 +2,38 @@ package com.mentory.ense_proyect.model;
 
 import java.util.Set;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "roles")
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Table;
+
+
+
+@Entity
+@Table(name = "roles")
+
 public class Role {
     @Id
     private String rolename;
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "role_hierarchy",
+        joinColumns = @JoinColumn(name = "role"),
+        inverseJoinColumns = @JoinColumn(name = "included_role")
+    )
     private Set<Role> includes;
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "role_permissions",
+        joinColumns = @JoinColumn(name = "role"),
+        inverseJoinColumns = @JoinColumn(name = "permission")
+    )
     private Set<Permission> permissions;
 
     public Role() {}

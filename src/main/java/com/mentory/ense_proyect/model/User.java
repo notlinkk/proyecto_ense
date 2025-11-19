@@ -7,17 +7,28 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonView;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Table;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.jspecify.annotations.NonNull;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 
-@Document(collection = "users")
+@Entity
+@Table(name = "users")
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 
 public class User implements UserDetails{
@@ -43,12 +54,21 @@ public class User implements UserDetails{
     @JsonIgnore                 // No se serializa la contraseña al convertir a JSON
     private String password;    // Contraseña del usuario
 
+    @OneToMany(mappedBy = "buyer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonView(OwnView.class)
     private Set<Subscription> subscriptions = new HashSet<>();     // Suscripciones del usuario
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "user_lessons",
+        joinColumns = @JoinColumn(name = "username"),
+        inverseJoinColumns = @JoinColumn(name = "lesson_id"))
     @JsonView(ExternalView.class)
-    private HashMap<String,Lesson> lessons = new HashMap<>();   // Lecciones creadas por el usuario
+    private Set<Lesson> lessons = new HashSet<>();   // Lecciones creadas por el usuario
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "user_roles",
+        joinColumns = @JoinColumn(name = "username"),
+        inverseJoinColumns = @JoinColumn(name = "rolename"))
     private Set<Role> roles;
     // Constructor
     public User() {
@@ -127,12 +147,10 @@ public class User implements UserDetails{
     public void setSubscriptions(Set<Subscription> suscripcionesCompradas) {
         this.subscriptions = suscripcionesCompradas;
     }
-
-    public HashMap<String, Lesson> getLessons() {
+    public Set<Lesson> getLessons() {
         return lessons;
     }
-
-    public void setLessons(HashMap<String, Lesson> leccionesCreadas) {
+    public void setLessons(Set<Lesson> leccionesCreadas) {
         this.lessons = leccionesCreadas;
     }
 }

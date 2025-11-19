@@ -30,8 +30,6 @@ public class LessonService {
     public LessonService(LessonRepository leccionRepository, ObjectMapper mapper) {
         this.lessonRepository = leccionRepository;
         this.mapper=mapper;
-
-        leccionRepository.save(new Lesson("pepe10","Lección de prueba","Esta es una lección de prueba"));
     }
 
     // CRUD

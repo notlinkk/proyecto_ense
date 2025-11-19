@@ -2,17 +2,25 @@ package com.mentory.ense_proyect.service;
 
 import com.mentory.ense_proyect.exception.UserNotFoundException;
 import com.mentory.ense_proyect.exception.DuplicatedUserException;
+import com.mentory.ense_proyect.model.Role;
 import com.mentory.ense_proyect.model.User;
+import com.mentory.ense_proyect.repository.RoleRepository;
 import com.mentory.ense_proyect.repository.UserRepository;
+
+import io.swagger.v3.core.util.Json;
+import tools.jackson.databind.ObjectMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.data.domain.Page;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
 import com.github.fge.jsonpatch.JsonPatchOperation;
@@ -23,18 +31,24 @@ import org.jspecify.annotations.Nullable;
 import java.util.*;
 
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
     private final ObjectMapper mapper;
 
-    @Autowired  
-    public UserService (UserRepository userRepository, ObjectMapper mapper) {
-        this.userRepository = userRepository;
-        this.mapper = new ObjectMapper();
 
-        userRepository.save(
-                new User("fernandaco2011", "Fernando", "García", "Rodriguez", "fernandito54@gmail.com", "1234")
-        );
+    @Autowired  
+    public UserService (UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, ObjectMapper mapper) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.mapper = mapper;
+    }
+
+    @ Override
+    public User loadUserByUsername(String username) throws UsernameNotFoundException {
+        return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
     }
 
     // CRUD

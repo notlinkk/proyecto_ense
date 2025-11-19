@@ -79,7 +79,8 @@ public class UserController {
     //**
     // Getters version 1 - CON HATEOAS
     // **/
-    @GetMapping(path = "{id}", produces = MediaType.HAL_JSON_VALUE, version = "1")
+   
+    /*@GetMapping(path = "{id}", produces = MediaType.HAL_JSON_VALUE, version = "1")
     public ResponseEntity <EntityModel<User>> getUser(@PathVariable("id") String id) throws UserNotFoundException {
 
         EntityModel<User> user = EntityModel.of(userService.getUser(id));
@@ -127,7 +128,7 @@ public class UserController {
         );
 
         return ResponseEntity.ok(response);
-    }
+    } */
 
     @PostMapping
     @JsonView(User.CreateView.class)

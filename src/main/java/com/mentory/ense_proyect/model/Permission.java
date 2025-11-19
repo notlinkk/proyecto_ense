@@ -1,9 +1,12 @@
 package com.mentory.ense_proyect.model;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collation = "permissions")
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "permissions")
 
 public class Permission {
     @Id

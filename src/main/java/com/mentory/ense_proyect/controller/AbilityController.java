@@ -21,16 +21,16 @@ import java.util.*;
 @RestController
 @RequestMapping("abilities")
 public class AbilityController {
-    AbilityService AbilityService;
+    private final AbilityService abilityService;
 
     @Autowired
-    public AbilityController(AbilityService AbilityService) {
-        this.AbilityService = AbilityService;
+    public AbilityController(AbilityService abilityService) {
+        this.abilityService = abilityService;
     }
 
     @GetMapping("{id}")
     public ResponseEntity <Ability> getAbility(@PathVariable("id") String id) throws AbilityNotFoundException {
-        return ResponseEntity.ok(AbilityService.getAbility(id));
+        return ResponseEntity.ok(abilityService.getAbility(id));
     }
 
     @GetMapping
@@ -40,7 +40,7 @@ public class AbilityController {
             @RequestParam(value="size", required=false, defaultValue="2") int pagesize,
             @RequestParam(value="sort", required=false, defaultValue="") List<String> sort
     ) {
-        Page<Ability> Abilityes = AbilityService.getAbilities(
+        Page<Ability> Abilityes = abilityService.getAbilities(
                 nombre,
                 PageRequest.of(
                         page, pagesize,
@@ -61,10 +61,10 @@ public class AbilityController {
 
     @PostMapping
     public ResponseEntity<Ability> createAbility(@RequestBody Ability Ability) throws DuplicatedAbilityException {
-            Ability nuevaAbility = AbilityService.createAbility(Ability);
+            Ability nuevaAbility = abilityService.addAbility(Ability);
             return ResponseEntity
                     .created(MvcUriComponentsBuilder
-                            .fromMethodName(AbilityController.class, "getAbility", Ability.name())
+                            .fromMethodName(AbilityController.class, "getAbility", Ability.getName())
                             .build()
                             .toUri())
                     .body(nuevaAbility);
@@ -72,7 +72,7 @@ public class AbilityController {
 
     @DeleteMapping({"{id}"})
     public ResponseEntity<Void> deleteAbility(@PathVariable("id") String id) throws AbilityNotFoundException {
-        AbilityService.deleteAbility(id);
+        abilityService.deleteAbility(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -81,7 +81,7 @@ public class AbilityController {
             @PathVariable("id") String id,
             @RequestBody List<JsonPatchOperation> changes
             ) throws AbilityNotFoundException, JsonPatchException {
-        return ResponseEntity.ok(AbilityService.updateAbility(id, changes));
+        return ResponseEntity.ok(abilityService.updateAbility(id, changes));
     }
 }
 

@@ -30,8 +30,6 @@ public class ModuleService {
     public ModuleService(ModuleRepository moduleRepository,  ObjectMapper mapper) {
         this.moduleRepository=moduleRepository;
         this.mapper=mapper;
-
-        moduleRepository.save(new Module("Álgebra","Matrices y nueritos", "Contenido a mostrar",20,1,"us10" ));
     }
 
     // CRUD
@@ -44,7 +42,7 @@ public class ModuleService {
     }
 
     public Page<@NonNull Module> getModules(@Nullable String name, PageRequest page) {
-        Example<Module> example = Example.of(new Module(name, null, null,0,0,null));
+        Example<Module> example = Example.of(new Module(name, null, null,0,0));
         return moduleRepository.findAll(example, page);
     }
 

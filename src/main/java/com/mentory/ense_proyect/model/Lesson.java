@@ -4,14 +4,29 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.hibernate.annotations.ManyToAny;
+import org.springframework.boot.webmvc.autoconfigure.WebMvcProperties.Apiversion.Use;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonView;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "lessons")
+
+@Entity
+@Table(name = "lessons")
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Lesson {
     // La distincion se verá reflejada en la url del recurso /users/{userId}/lessons/{lessonId}
@@ -32,14 +47,25 @@ public class Lesson {
     @JsonView(CreateView.class)
     private String ownerId; // ID del usuario al que pertenece la lección
 
+    @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonView(OwnView.class)
     private Set<Subscription> subscriptions = new HashSet<>(); // Suscripciones asociadas a la lección
     
+    @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonView(ExternalView.class)
-    private HashMap<Integer,Module> modules = new HashMap<>(); // Módulos que componen la lección
+    private Set<Module> modules = new HashSet<>(); // Módulos que componen la lección
     
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable (
+        name = "lesson_ability",
+        joinColumns = @JoinColumn(name = "lesson_id"),
+        inverseJoinColumns = @JoinColumn(name = "ability_name")
+    )
     @JsonView(ExternalView.class)
-    private Set<Ability> ability = new HashSet<>();
+    private Set<Ability> abilities = new HashSet<>();
+
+    @ManyToMany(mappedBy = "lessons")
+    private Set<User> users = new HashSet<>(); // Usuarios que han creado la lección
 
     // Constructor
     public Lesson(){}
@@ -90,19 +116,17 @@ public class Lesson {
         this.subscriptions = suscripciones;
     }
 
-    public Set<Ability> getAbility() {
-        return ability;
+    public Set<Ability> getAbilities() {
+        return abilities;
     }
 
     public void setHabilidad(Set<Ability> habilidad) {
-        this.ability = habilidad;
+        this.abilities = habilidad;
     }
-
-    public HashMap<Integer, Module> getModules() {
+    public Set<Module> getModules() {
         return modules;
     }
-
-    public void setModules(HashMap<Integer, Module> modulos) {
+    public void setModules(Set<Module> modulos) {
         this.modules = modulos;
     }
 }
