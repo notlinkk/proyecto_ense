@@ -8,7 +8,7 @@ En este se desarrolla una API RESTful utilizando Spring Boot.
 
 **Implementaciones necesarias:**
 > - Método para suscribirse (eliminar el POST)
-> - Versioning
+> - Versioning - usar spring 4.0
 > - Hateoas
 
 **Cosas extra que se podrían añadir:**

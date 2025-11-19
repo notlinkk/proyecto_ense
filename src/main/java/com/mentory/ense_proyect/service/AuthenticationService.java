@@ -1,9 +1,9 @@
-/*package com.mentory.ense_proyect.service;
+package com.mentory.ense_proyect.service;
 
 import com.mentory.ense_proyect.model.Permission;
 import com.mentory.ense_proyect.model.User;
-import gal.usc.etse.es.restdemo.repository.RoleRepository;
-import gal.usc.etse.es.restdemo.repository.UserRepository;
+import com.mentory.ense_proyect.repository.UserRepository;
+import com.mentory.ense_proyect.repository.RoleRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -107,4 +107,3 @@ public class AuthenticationService {
         return builder.build();
     }
 }
-*/

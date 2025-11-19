@@ -1,0 +1,73 @@
+[
+  {
+    "_id": "lesson1",
+    "name": "Introducción a la Magia",
+    "description": "Una lección básica para aprender los fundamentos de la magia.",
+    "ownerId": "user123",
+    "subscriptions": [
+      {
+        "userId": "student001",
+        "since": "2024-01-10T00:00:00Z",
+        "active": true
+      },
+      {
+        "userId": "student002",
+        "since": "2024-02-01T00:00:00Z",
+        "active": true
+      }
+    ],
+    "modules": {
+      "1": {
+        "title": "Fundamentos",
+        "content": "Explicación de qué es la magia y sus tipos.",
+        "duration": 20
+      },
+      "2": {
+        "title": "Primeros Hechizos",
+        "content": "Aprender a lanzar una chispa mágica.",
+        "duration": 30
+      }
+    },
+    "ability": [
+      {
+        "name": "fireball",
+        "description": "Enables the user to cast a fire-based projectile spell."
+      },
+      {
+        "name": "shield",
+        "description": "Creates a protective barrier that blocks incoming damage."
+      }
+    ]
+  },
+
+  {
+    "_id": "lesson2",
+    "name": "Supervivencia en Bosques",
+    "description": "Curso para aprender habilidades básicas de supervivencia.",
+    "ownerId": "user456",
+    "subscriptions": [
+      {
+        "userId": "student010",
+        "since": "2023-12-11T00:00:00Z",
+        "active": true
+      }
+    ],
+    "modules": {
+      "1": {
+        "title": "Construcción de Refugios",
+        "content": "Cómo localizar un área segura y construir un refugio estable.",
+        "duration": 45
+      }
+    },
+    "ability": [
+      {
+        "name": "tracking",
+        "description": "Permits the user to follow trails and track creatures."
+      },
+      {
+        "name": "stealth",
+        "description": "Allows the user to move silently and remain undetected."
+      }
+    ]
+  }
+]

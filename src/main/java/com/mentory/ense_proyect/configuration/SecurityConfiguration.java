@@ -1,7 +1,8 @@
-/*package com.mentory.ense_proyect.configuration;
+package com.mentory.ense_proyect.configuration;
 
 import com.mentory.ense_proyect.filter.JWTFilter;
 import com.mentory.ense_proyect.configuration.AuthenticationConfiguration;
+import com.mentory.ense_proyect.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,7 +29,7 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(authorize ->
                         authorize.requestMatchers("/auth/**").permitAll()
                         .anyRequest().authenticated()
@@ -44,4 +45,4 @@ public class SecurityConfiguration {
     public RoleHierarchy roleHierarchy() {
         return authenticationService.loadRoleHierarchy();
     }
-}*/
+}

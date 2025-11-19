@@ -11,10 +11,8 @@ public class Role {
     @Id
     private String rolename;
 
-    @DBRef(lazy = true)
     private Set<Role> includes;
 
-    @DBRef(lazy = true)
     private Set<Permission> permissions;
 
     public Role() {}

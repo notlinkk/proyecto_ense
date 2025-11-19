@@ -44,16 +44,16 @@ public class AbilityService {
     }
 
     // CRUD
-    public Ability createAbility(Ability habilidad) throws DuplicatedAbilityException {
-        if (!habilidadRepository.exists(Example.of(habilidad))) {
-            return habilidadRepository.save(habilidad);
+    public Ability createAbility(Ability ability) throws DuplicatedAbilityException {
+        if (!habilidadRepository.exists(Example.of(ability))) {
+            return habilidadRepository.save(ability);
         } else {
-            throw new DuplicatedAbilityException(habilidad);
+            throw new DuplicatedAbilityException(ability);
         }
     }
 
-    public Page<@NonNull Ability> getAbilities(@Nullable String nombre, PageRequest page) {
-        Example<Ability> example = Example.of(new Ability(nombre, null));
+    public Page<@NonNull Ability> getAbilities(@Nullable String name, PageRequest page) {
+        Example<Ability> example = Example.of(new Ability(name, null));
         return habilidadRepository.findAll(example, page);
     }
 
@@ -61,8 +61,8 @@ public class AbilityService {
         return habilidadRepository.findById(id).orElseThrow(() -> new AbilityNotFoundException(id));
     }
 
-    public Ability updateAbility(String nombre, List<JsonPatchOperation> changes) throws AbilityNotFoundException, JsonPatchException {
-        Ability habilidad = habilidadRepository.findById(nombre).orElseThrow(() -> new AbilityNotFoundException(nombre));
+    public Ability updateAbility(String name, List<JsonPatchOperation> changes) throws AbilityNotFoundException, JsonPatchException {
+        Ability habilidad = habilidadRepository.findById(name).orElseThrow(() -> new AbilityNotFoundException(name));
             JsonPatch patch = new JsonPatch(changes);
             JsonNode patched = patch.apply(mapper.convertValue(habilidad, JsonNode.class));
             Ability updated = mapper.convertValue(patched, Ability.class);

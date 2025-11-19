@@ -27,7 +27,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final ObjectMapper mapper;
 
-    @Autowired
+    @Autowired  
     public UserService (UserRepository userRepository, ObjectMapper mapper) {
         this.userRepository = userRepository;
         this.mapper = new ObjectMapper();

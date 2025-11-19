@@ -1,0 +1,79 @@
+[
+  {
+    "_id": "USER",
+    "rolename": "USER",
+    "includes": [],
+    "permissions": [
+      { "_id": "users:read",     "resource": "users",     "action": "read" },
+      { "_id": "lessons:read",   "resource": "lessons",   "action": "read" },
+      { "_id": "modules:read",   "resource": "modules",   "action": "read" },
+      { "_id": "abilities:read", "resource": "abilities", "action": "read" }
+    ]
+  },
+
+  {
+    "_id": "INSTRUCTOR",
+    "rolename": "INSTRUCTOR",
+    "includes": [
+      {
+        "_id": "USER",
+        "rolename": "USER",
+        "includes": [],
+        "permissions": [
+          { "_id": "users:read",     "resource": "users",     "action": "read" },
+          { "_id": "lessons:read",   "resource": "lessons",   "action": "read" },
+          { "_id": "modules:read",   "resource": "modules",   "action": "read" },
+          { "_id": "abilities:read", "resource": "abilities", "action": "read" }
+        ]
+      }
+    ],
+    "permissions": [
+      { "_id": "lessons:create", "resource": "lessons", "action": "create" },
+      { "_id": "lessons:update", "resource": "lessons", "action": "update" },
+      { "_id": "modules:create", "resource": "modules", "action": "create" },
+      { "_id": "modules:update", "resource": "modules", "action": "update" },
+      { "_id": "abilities:read", "resource": "abilities", "action": "read" }
+    ]
+  },
+
+  {
+    "_id": "ADMIN",
+    "rolename": "ADMIN",
+    "includes": [
+      {
+        "_id": "INSTRUCTOR",
+        "rolename": "INSTRUCTOR",
+        "includes": [
+          {
+            "_id": "USER",
+            "rolename": "USER",
+            "includes": [],
+            "permissions": [
+              { "_id": "users:read",     "resource": "users",     "action": "read" },
+              { "_id": "lessons:read",   "resource": "lessons",   "action": "read" },
+              { "_id": "modules:read",   "resource": "modules",   "action": "read" },
+              { "_id": "abilities:read", "resource": "abilities", "action": "read" }
+            ]
+          }
+        ],
+        "permissions": [
+          { "_id": "lessons:create", "resource": "lessons", "action": "create" },
+          { "_id": "lessons:update", "resource": "lessons", "action": "update" },
+          { "_id": "modules:create", "resource": "modules", "action": "create" },
+          { "_id": "modules:update", "resource": "modules", "action": "update" },
+          { "_id": "abilities:read", "resource": "abilities", "action": "read" }
+        ]
+      }
+    ],
+    "permissions": [
+      { "_id": "users:create",     "resource": "users",     "action": "create" },
+      { "_id": "users:update",     "resource": "users",     "action": "update" },
+      { "_id": "users:delete",     "resource": "users",     "action": "delete" },
+      { "_id": "lessons:delete",   "resource": "lessons",   "action": "delete" },
+      { "_id": "modules:delete",   "resource": "modules",   "action": "delete" },
+      { "_id": "abilities:create", "resource": "abilities", "action": "create" },
+      { "_id": "abilities:update", "resource": "abilities", "action": "update" },
+      { "_id": "abilities:delete", "resource": "abilities", "action": "delete" }
+    ]
+  }
+]
