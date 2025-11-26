@@ -13,3 +13,5 @@ En este se desarrolla una API RESTful utilizando Spring Boot.
 
 **Cosas extra que se podrían añadir:**
 > - Busqueda avanzada por coincidencia parcial.
+
+docker exec -it postgres psql -U admin -d ense

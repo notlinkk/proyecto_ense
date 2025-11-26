@@ -8,7 +8,6 @@ import com.mentory.ense_proyect.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.MediaType;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
@@ -19,7 +18,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.hateoas.*;
 import org.springframework.hateoas.server.EntityLinks;
 import org.springframework.hateoas.server.ExposesResourceFor;
-import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+
 
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -41,17 +42,25 @@ public class UserController {
         this.entityLinks = entityLinks;
     }
 
-
-    //**
-    // Getters version 0 - SIN HATEOAS
-    // **/
-    @GetMapping(path = "{id}", produces = MediaType.APPLICATION_JSON_VALUE, version = "0")
-    public ResponseEntity <User> getUser(@PathVariable("id") String id) throws UserNotFoundException {
+    @GetMapping(path = "{id}", version = "0")
+    public ResponseEntity <User> getUserV0(@PathVariable("id") String id) throws UserNotFoundException {
         return ResponseEntity.ok(userService.getUser(id));
     }
 
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE, version = "0")
-    public ResponseEntity<Page<User>> getUsers(
+    @GetMapping(path = "{id}", version = "1")
+    public ResponseEntity <EntityModel<User>> getUserV1(@PathVariable("id") String id) throws UserNotFoundException {
+
+        EntityModel<User> user = EntityModel.of(userService.getUser(id));
+        user.add(
+            entityLinks.linkToItemResource(User.class, user).withSelfRel(),
+            entityLinks.linkToCollectionResource(User.class).withRel(IanaLinkRelations.COLLECTION),
+            entityLinks.linkToItemResource(User.class, user).withRel("delete").withType("DELETE")
+        );
+        return ResponseEntity.ok(user);
+    }
+
+    @GetMapping( version = "0")
+    public ResponseEntity<Page<User>> getUsersV0(
             @RequestParam(value="nombre", required=false) String nombre,
             @RequestParam(value="page", required=false, defaultValue="0") int page,
             @RequestParam(value="size", required=false, defaultValue="2") int pagesize,
@@ -75,60 +84,66 @@ public class UserController {
         }
         return ResponseEntity.ok(users);
     }
-
-    //**
-    // Getters version 1 - CON HATEOAS
-    // **/
-   
-    /*@GetMapping(path = "{id}", produces = MediaType.HAL_JSON_VALUE, version = "1")
-    public ResponseEntity <EntityModel<User>> getUser(@PathVariable("id") String id) throws UserNotFoundException {
-
-        EntityModel<User> user = EntityModel.of(userService.getUser(id));
-        user.add(
-            entityLinks.linkToItemResource(User.class, user).withSelfRel(),
-            entityLinks.linkToCollectionResource(User.class).withRel(IanaLinkRelations.COLLECTION),
-            entityLinks.linkToItemResource(User.class, user).withRel("delete").withType("DELETE")
-        );
-        return ResponseEntity.ok(user);
-    }
-
-    @GetMapping(produces = MediaType.HAL_JSON_VALUE, version = "1")
-    public ResponseEntity<PagedModel<User>> getUsers(
-            @RequestParam(value="nombre", required=false) String nombre,
-            @RequestParam(value="page", required=false, defaultValue="0") int page,
-            @RequestParam(value="size", required=false, defaultValue="2") int pagesize,
-            @RequestParam(value="sort", required=false, defaultValue="") List<String> sort
+    
+    @GetMapping(version = "1")
+    public ResponseEntity<PagedModel<User>> getUsersV1(
+        @RequestParam(value="nombre", required=false) String nombre,
+        @RequestParam(value="page", required=false, defaultValue="0") int page,
+        @RequestParam(value="size", required=false, defaultValue="2") int pagesize,
+        @RequestParam(value="sort", required=false, defaultValue="") List<String> sort
     ) {
+
         var users = userService.getUsers(
-                nombre,
-                PageRequest.of(
-                        page, pagesize,
-                        Sort.by(sort.stream()
-                                .map(key -> key.startsWith("-") ?
-                                        Sort.Order.desc(key.substring(1)) :
-                                        Sort.Order.asc(key))
-                                .toList()
-                        )
+        nombre,
+        PageRequest.of(
+                page, pagesize,
+                Sort.by(sort.stream()
+                        .map(key -> key.startsWith("-") ?
+                                Sort.Order.desc(key.substring(1)) :
+                                Sort.Order.asc(key))
+                        .toList()
                 )
+        )
         );
+
+        if (users.isEmpty()) {
+        return ResponseEntity.noContent().build();
+        }
 
         PagedModel<User> response = PagedModel.of(
-                users.getContent(),
-                new PagedModel.PageMetadata(
-                        users.getSize(),
-                        users.getNumber(),
-                        users.getTotalElements(),
-                        users.getTotalPages()
-                )
+        users.getContent(),
+        new PagedModel.PageMetadata(
+                users.getSize(),
+                users.getNumber(),
+                users.getTotalElements(),
+                users.getTotalPages()
+        )
         );
 
         response.add(
-                entityLinks.linkToCollectionResource(User.class).withSelfRel(),
-                linkTo(methodOn(UserController.class).getUser()
+                entityLinks.linkToCollectionResource(User.class).withSelfRel()
+
         );
 
+        if (users.hasNext()) {
+        response.add(
+                linkTo(methodOn(UserController.class)
+                        .getUsersV1(nombre, page + 1, pagesize, sort))
+                        .withRel(IanaLinkRelations.NEXT)
+        );
+        }
+
+        if (users.hasPrevious()) {
+        response.add(
+                linkTo(methodOn(UserController.class)
+                        .getUsersV1(nombre, page - 1, pagesize, sort))
+                        .withRel(IanaLinkRelations.PREVIOUS)
+        );
+        }
+
         return ResponseEntity.ok(response);
-    } */
+    }
+
 
     @PostMapping
     @JsonView(User.CreateView.class)

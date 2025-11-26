@@ -21,8 +21,9 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	runtimeOnly 'org.postgresql:postgresql'
+ 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+ 	// Make the JDBC driver available on the IDE/run classpath (not just runtime)
+ 	implementation 'org.postgresql:postgresql'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.0-RC1'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-scalar:3.0.0-RC1'

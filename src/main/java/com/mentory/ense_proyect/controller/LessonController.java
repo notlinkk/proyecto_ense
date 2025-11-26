@@ -14,6 +14,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
+import org.springframework.hateoas.*;
+import org.springframework.hateoas.server.EntityLinks;
+import org.springframework.hateoas.server.ExposesResourceFor;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+
 import com.github.fge.jsonpatch.JsonPatchException;
 import com.github.fge.jsonpatch.JsonPatchOperation;
 
@@ -22,23 +28,35 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("lessons")
+@ExposesResourceFor(Lesson.class)
 public class LessonController {
     private final LessonRepository lessonRepository;
     LessonService lessonService;
-
+    private EntityLinks entityLinks;
     @Autowired
-    public LessonController(LessonService lessonService, LessonRepository lessonRepository) {
+    public LessonController(LessonService lessonService, LessonRepository lessonRepository, EntityLinks entityLinks) {
         this.lessonService = lessonService;
         this.lessonRepository = lessonRepository;
+        this.entityLinks = entityLinks;
     }
 
-    @GetMapping("{id}")
-    public ResponseEntity <Lesson> getLesson(@PathVariable("id") String id) throws LessonNotFoundException {
+    @GetMapping(path="{id}", version = "0")
+    public ResponseEntity <Lesson> getLessonV0(@PathVariable("id") String id) throws LessonNotFoundException {
         return ResponseEntity.ok(lessonService.getLesson(id));
     }
+    @GetMapping(path="{id}", version = "1")
+    public ResponseEntity <EntityModel<Lesson>> getLessonV1(@PathVariable("id") String id) throws LessonNotFoundException {
+        EntityModel<Lesson> lesson = EntityModel.of(lessonService.getLesson(id));
+        lesson.add(
+            entityLinks.linkToItemResource(Lesson.class, lesson).withSelfRel(),
+            entityLinks.linkToCollectionResource(Lesson.class).withRel(IanaLinkRelations.COLLECTION),
+            entityLinks.linkToItemResource(Lesson.class, lesson).withRel("delete").withType("DELETE")
+        );
+        return ResponseEntity.ok(lesson);
+    }
 
-    @GetMapping
-    public ResponseEntity<Page<Lesson>> getLessons(
+    @GetMapping ( version = "0")
+    public ResponseEntity<Page<Lesson>> getLessonsV0(
             @RequestParam(value="nombre", required=false) String nombre,
             @RequestParam(value="page", required=false, defaultValue="0") int page,
             @RequestParam(value="size", required=false, defaultValue="2") int pagesize,
@@ -61,6 +79,64 @@ public class LessonController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(lessons);
+    }
+
+    @GetMapping(version = "1")
+    public ResponseEntity<PagedModel<Lesson>> getLessonsV1(
+            @RequestParam(value="nombre", required=false) String nombre,
+            @RequestParam(value="page", required=false, defaultValue="0") int page,
+            @RequestParam(value="size", required=false, defaultValue="2") int pagesize,
+            @RequestParam(value="sort", required=false, defaultValue="") List<String> sort
+    ) {
+
+        Page<Lesson> lessons = lessonService.getLessons(
+                nombre,
+                PageRequest.of(
+                        page, pagesize,
+                        Sort.by(sort.stream()
+                                .map(key -> key.startsWith("-") ?
+                                        Sort.Order.desc(key.substring(1)) :
+                                        Sort.Order.asc(key))
+                                .toList()
+                        )
+                )
+        );
+
+        if (lessons.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        PagedModel<Lesson> response= PagedModel.of(
+            lessons.getContent(),
+            new PagedModel.PageMetadata(
+                lessons.getSize(),
+                lessons.getNumber(),
+                lessons.getTotalElements(),
+                lessons.getTotalPages()
+            )
+        );
+
+        response.add( entityLinks.linkToCollectionResource(Lesson.class).withSelfRel() );
+
+        // PREVIOUS
+        if (lessons.hasPrevious()) {
+            response.add(
+                    linkTo(methodOn(LessonController.class)
+                            .getLessonsV1(nombre, page - 1, pagesize, sort))
+                            .withRel(IanaLinkRelations.PREVIOUS)
+            );
+        }
+
+        // NEXT
+        if (lessons.hasNext()) {
+            response.add(
+                    linkTo(methodOn(LessonController.class)
+                            .getLessonsV1(nombre, page + 1, pagesize, sort))
+                            .withRel(IanaLinkRelations.NEXT)
+            );
+        }
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping
