@@ -1,12 +1,17 @@
 package com.mentory.ense_proyect.service;
 
+import com.mentory.ense_proyect.exception.InvalidRefreshTokenException;
 import com.mentory.ense_proyect.model.Permission;
+import com.mentory.ense_proyect.model.RefreshToken;
 import com.mentory.ense_proyect.model.User;
 import com.mentory.ense_proyect.repository.UserRepository;
+import com.mentory.ense_proyect.repository.RefreshTokenRepository;
 import com.mentory.ense_proyect.repository.RoleRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -21,11 +26,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.security.KeyPair;
+import java.sql.Ref;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class AuthenticationService {
@@ -33,26 +40,62 @@ public class AuthenticationService {
     private final KeyPair keyPair;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
-    @Value("${jwt.ttl:PT15M}")
+    @Value("${auth.jwt.ttl:PT15M}")
     private Duration tokenTTL;
+    
+    @Value("${auth.refresh.ttl:PT72H}")
+    private Duration refreshTTL;
 
     @Autowired
     public AuthenticationService(
             AuthenticationManager authenticationManager,
             KeyPair keyPair,
             UserRepository userRepository,
-            RoleRepository roleRepository
+            RoleRepository roleRepository,
+            RefreshTokenRepository refreshTokenRepository
+
     ) {
         this.authenticationManager = authenticationManager;
         this.keyPair = keyPair;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.refreshTokenRepository = refreshTokenRepository;
     }
 
     public Authentication login(User user) throws AuthenticationException {
         return authenticationManager.authenticate(UsernamePasswordAuthenticationToken.unauthenticated(user.getUsername(), user.getPassword()));
     }
+
+    public Authentication login(String refreshToken) throws AuthenticationException {
+        Optional<RefreshToken> token = refreshTokenRepository.findByToken(refreshToken);
+        if (token.isPresent()) {
+            User user = userRepository.findByUsername(token.get().getUser())
+                    .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
+                
+            return login(user);
+        }
+
+        throw new InvalidRefreshTokenException("Invalid refresh token");
+    }
+
+    public void invalidateTokens(User user) {
+        refreshTokenRepository.deleteAllByUser(user.getUsername());
+    }
+
+    
+
+    public String regenerateRefreshToken(Authentication auth) {
+        UUID uuid = UUID.randomUUID();
+        RefreshToken refreshToken = new RefreshToken(uuid.toString(), auth.getName(), refreshTTL.toSeconds());
+        refreshTokenRepository.deleteAllByUser(auth.getName());
+        refreshTokenRepository.save(refreshToken);
+
+        return refreshToken.getToken();
+    }
+
+
 
     public String generateJWT(Authentication auth) {
         List<String> roles = auth.getAuthorities()

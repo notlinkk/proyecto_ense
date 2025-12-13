@@ -51,14 +51,22 @@ public class UserService implements UserDetailsService {
         return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
     }
 
-    // CRUD
-    public User addUser(User user) throws DuplicatedUserException {
-        if (!userRepository.exists(Example.of(user))) {
-            return userRepository.save(user);
-        } else {
+    public User create(User user) throws DuplicatedUserException {
+        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
             throw new DuplicatedUserException(user);
         }
+
+        Role userRole = roleRepository.findByRolename("USER");
+
+        return userRepository.save(
+                new User(
+                        user.getUsername(),
+                        passwordEncoder.encode(user.getPassword()),
+                        Set.of(userRole)
+                )
+        );
     }
+
 
     public User updateUser(String username, List<JsonPatchOperation> changes) throws UserNotFoundException, JsonPatchException {
         User user = userRepository.findById(username).orElseThrow(() -> new UserNotFoundException(username));

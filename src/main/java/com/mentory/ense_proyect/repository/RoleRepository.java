@@ -9,4 +9,5 @@ import com.mentory.ense_proyect.model.Role;
 @Repository
 @NullMarked
 public interface RoleRepository extends JpaRepository <@NonNull Role, @NonNull String> {
+    Role findByRolename(@NonNull String rolename);
 }
