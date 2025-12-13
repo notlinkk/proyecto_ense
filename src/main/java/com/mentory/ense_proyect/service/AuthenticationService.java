@@ -1,9 +1,9 @@
 package com.mentory.ense_proyect.service;
 
 import com.mentory.ense_proyect.exception.InvalidRefreshTokenException;
-import com.mentory.ense_proyect.model.Permission;
-import com.mentory.ense_proyect.model.RefreshToken;
-import com.mentory.ense_proyect.model.User;
+import com.mentory.ense_proyect.model.entity.Permission;
+import com.mentory.ense_proyect.model.entity.RefreshToken;
+import com.mentory.ense_proyect.model.entity.User;
 import com.mentory.ense_proyect.repository.UserRepository;
 import com.mentory.ense_proyect.repository.RefreshTokenRepository;
 import com.mentory.ense_proyect.repository.RoleRepository;
@@ -64,8 +64,8 @@ public class AuthenticationService {
         this.refreshTokenRepository = refreshTokenRepository;
     }
 
-    public Authentication login(User user) throws AuthenticationException {
-        return authenticationManager.authenticate(UsernamePasswordAuthenticationToken.unauthenticated(user.getUsername(), user.getPassword()));
+    public Authentication login(String username, String password) throws AuthenticationException {
+        return authenticationManager.authenticate(UsernamePasswordAuthenticationToken.unauthenticated(username, password));
     }
 
     public Authentication login(String refreshToken) throws AuthenticationException {
@@ -74,7 +74,7 @@ public class AuthenticationService {
             User user = userRepository.findByUsername(token.get().getUser())
                     .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
                 
-            return login(user);
+            return login(user.getUsername(), user.getPassword());
         }
 
         throw new InvalidRefreshTokenException("Invalid refresh token");

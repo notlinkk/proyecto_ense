@@ -1,8 +1,10 @@
 package com.mentory.ense_proyect.controller;
 
 import com.mentory.ense_proyect.exception.DuplicatedModuleException;
+import com.mentory.ense_proyect.exception.LessonNotFoundException;
 import com.mentory.ense_proyect.exception.ModuleNotFoundException;
-import com.mentory.ense_proyect.model.Module;
+import com.mentory.ense_proyect.model.dto.ModuleDTO;
+import com.mentory.ense_proyect.model.entity.Module;
 import com.mentory.ense_proyect.service.ModuleService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -138,11 +140,11 @@ public class ModuleController {
     }
 
     @PostMapping
-    public ResponseEntity<Module> createModule(@RequestBody Module module) throws DuplicatedModuleException {
-        Module newModule = moduleService.addModule(module);
+    public ResponseEntity<Module> createModule(@RequestBody ModuleDTO moduleDTO) throws LessonNotFoundException {
+        Module newModule = moduleService.createModule(moduleDTO);
         return ResponseEntity
                 .created(MvcUriComponentsBuilder
-                        .fromMethodName(ModuleController.class, "getModule", module.getId())
+                        .fromMethodName(ModuleController.class, "getModuleV1", newModule.getId())
                         .build()
                         .toUri())
                 .body(newModule);

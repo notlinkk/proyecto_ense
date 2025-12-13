@@ -1,4 +1,4 @@
-package com.mentory.ense_proyect.model;
+package com.mentory.ense_proyect.model.entity;
 
 
 import jakarta.persistence.Entity;

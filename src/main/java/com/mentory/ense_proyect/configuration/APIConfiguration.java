@@ -1,4 +1,3 @@
-
 package com.mentory.ense_proyect.configuration;
 
 import org.springframework.context.annotation.Configuration;
@@ -11,7 +10,7 @@ public class APIConfiguration implements WebMvcConfigurer {
 	public void configureApiVersioning(ApiVersionConfigurer configurer) {
 		configurer.useRequestHeader("API-Version");
         configurer.useQueryParam("version");
-        configurer.setDefaultVersion("1.0");
+        configurer.setDefaultVersion("0");
         configurer.setVersionRequired(false);
 	}
 }

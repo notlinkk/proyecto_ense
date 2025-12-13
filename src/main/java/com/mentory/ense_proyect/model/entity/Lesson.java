@@ -1,4 +1,4 @@
-package com.mentory.ense_proyect.model;
+package com.mentory.ense_proyect.model.entity;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -65,6 +65,7 @@ public class Lesson {
     private Set<Ability> abilities = new HashSet<>();
 
     @ManyToMany(mappedBy = "lessons")
+    @JsonIgnore
     private Set<User> users = new HashSet<>(); // Usuarios que han creado la lección
 
     // Constructor

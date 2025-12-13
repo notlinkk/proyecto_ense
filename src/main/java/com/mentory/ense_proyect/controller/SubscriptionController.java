@@ -1,12 +1,18 @@
 package com.mentory.ense_proyect.controller;
 
 import com.mentory.ense_proyect.exception.DuplicatedSubscriptionException;
+import com.mentory.ense_proyect.exception.LessonNotFoundException;
 import com.mentory.ense_proyect.exception.SubscriptionNotFoundException;
-import com.mentory.ense_proyect.model.Subscription;
+import com.mentory.ense_proyect.exception.UserNotFoundException;
+import com.mentory.ense_proyect.model.dto.SubscriptionDTO;
+import com.mentory.ense_proyect.model.dto.SubscriptionResponseDTO;
+import com.mentory.ense_proyect.model.entity.Lesson;
+import com.mentory.ense_proyect.model.entity.Subscription;
 import com.mentory.ense_proyect.service.SubscriptionService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.data.domain.Page;
@@ -125,15 +131,35 @@ public class SubscriptionController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Subscribe to a lesson. Uses authenticated user and lesson ID from DTO.
+     */
     @PostMapping
-    public ResponseEntity<Subscription> createSusbcription(@RequestBody Subscription subscription) throws DuplicatedSubscriptionException {
-            Subscription newSubscription = subscriptionService.addSubscription(subscription);
-            return ResponseEntity
-                    .created(MvcUriComponentsBuilder
-                            .fromMethodName(SubscriptionController.class, "getSubscription", subscription.getId())
-                            .build()
-                            .toUri())
-                    .body(newSubscription);
+    public ResponseEntity<Subscription> createSubscription(
+            @RequestBody SubscriptionDTO subscriptionDTO,
+            Authentication authentication
+    ) throws DuplicatedSubscriptionException, LessonNotFoundException, UserNotFoundException {
+        String username = authentication.getName();
+        Subscription newSubscription = subscriptionService.createSubscription(subscriptionDTO, username);
+        return ResponseEntity
+                .created(MvcUriComponentsBuilder
+                        .fromMethodName(SubscriptionController.class, "getSubscriptionV1", newSubscription.getId())
+                        .build()
+                        .toUri())
+                .body(newSubscription);
+    }
+
+    /**
+     * Check if user has active subscription to a lesson.
+     */
+    @GetMapping("check/{lessonId}")
+    public ResponseEntity<Map<String, Boolean>> checkSubscription(
+            @PathVariable("lessonId") String lessonId,
+            Authentication authentication
+    ) throws LessonNotFoundException {
+        String username = authentication.getName();
+        boolean hasAccess = subscriptionService.canAccessLessonContent(username, lessonId);
+        return ResponseEntity.ok(Map.of("hasAccess", hasAccess));
     }
 
     @PatchMapping("{id}")

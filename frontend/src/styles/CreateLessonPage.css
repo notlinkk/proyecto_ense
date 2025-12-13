@@ -1,0 +1,150 @@
+.create-lesson-page {
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.create-lesson-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  max-width: 600px;
+  width: 100%;
+}
+
+.create-lesson-container h1 {
+  color: #333;
+  margin-bottom: 1.5rem;
+  font-size: 1.75rem;
+  text-align: center;
+}
+
+.create-lesson-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.create-lesson-form .form-error {
+  background: #fee2e2;
+  color: #b91c1c;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.create-lesson-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.create-lesson-form label {
+  font-weight: 500;
+  color: #374151;
+  font-size: 0.95rem;
+}
+
+.create-lesson-form input,
+.create-lesson-form textarea {
+  padding: 0.75rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-family: inherit;
+}
+
+.create-lesson-form input:focus,
+.create-lesson-form textarea:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+.create-lesson-form input:disabled,
+.create-lesson-form textarea:disabled {
+  background: #f3f4f6;
+  cursor: not-allowed;
+}
+
+.create-lesson-form textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.create-lesson-form .form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+
+.create-lesson-form .btn-primary,
+.create-lesson-form .btn-secondary {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 120px;
+}
+
+.create-lesson-form .btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+}
+
+.create-lesson-form .btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.create-lesson-form .btn-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.create-lesson-form .btn-secondary {
+  background: white;
+  color: #6b7280;
+  border: 2px solid #e5e7eb;
+}
+
+.create-lesson-form .btn-secondary:hover:not(:disabled) {
+  border-color: #d1d5db;
+  background: #f9fafb;
+}
+
+.create-lesson-form .btn-secondary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .create-lesson-page {
+    padding: 1rem;
+  }
+
+  .create-lesson-container {
+    padding: 1.5rem;
+  }
+
+  .create-lesson-form .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .create-lesson-form .btn-primary,
+  .create-lesson-form .btn-secondary {
+    width: 100%;
+  }
+}

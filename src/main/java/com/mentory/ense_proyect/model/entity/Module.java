@@ -1,4 +1,4 @@
-package com.mentory.ense_proyect.model;
+package com.mentory.ense_proyect.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -43,7 +43,7 @@ public class Module {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lesson_id", nullable = false)
-    @JsonView(OwnView.class)
+    @JsonIgnore
     private Lesson lesson; // Lección a la que pertenece dicho módulo
 
     // Constructor

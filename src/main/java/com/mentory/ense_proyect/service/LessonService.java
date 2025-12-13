@@ -1,7 +1,8 @@
 package com.mentory.ense_proyect.service;
 
 import com.mentory.ense_proyect.exception.*;
-import com.mentory.ense_proyect.model.Lesson;
+import com.mentory.ense_proyect.model.dto.LessonDTO;
+import com.mentory.ense_proyect.model.entity.Lesson;
 import com.mentory.ense_proyect.repository.LessonRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,9 +42,24 @@ public class LessonService {
         }
     }
 
+    /**
+     * Crea una lección a partir de un DTO y el ID del propietario.
+     * Genera un ID único para la lección.
+     */
+    public Lesson createLesson(LessonDTO dto, String ownerId) throws DuplicatedLessonException {
+        Lesson lesson = new Lesson(ownerId, dto.name(), dto.description());
+        // Generar ID único
+        lesson.setId(UUID.randomUUID().toString());
+        return lessonRepository.save(lesson);
+    }
+
     public Page<@NonNull Lesson> getLessons(@Nullable String name, PageRequest page) {
-        Example<Lesson> example = Example.of(new Lesson(name, null, null));
-        return lessonRepository.findAll(example, page);
+        if (name == null || name.isBlank()) {
+            // Return all lessons if no name filter
+            return lessonRepository.findAll(page);
+        }
+        // Search by name using repository method
+        return lessonRepository.findByNameContainingIgnoreCase(name, page);
     }
 
     public Lesson getLesson(String id) throws LessonNotFoundException {

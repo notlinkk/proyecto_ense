@@ -1,4 +1,4 @@
-package com.mentory.ense_proyect.model;
+package com.mentory.ense_proyect.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -40,12 +40,12 @@ public class Subscription {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "username", nullable = false)
-    @JsonView(CreateView.class)
+    @JsonIgnore
     private User buyer;         // Comprador de la suscripción
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lesson_id", nullable = false)
-    @JsonView(OwnView.class)
+    @JsonIgnore
     private Lesson lesson;      // Lección asociada a la suscripción
 
     // Constructor vacio
@@ -65,6 +65,10 @@ public class Subscription {
     // Getters and Setters
     public String getId() {
         return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
     public String getStartDate() {
         return startDate;
@@ -88,5 +92,29 @@ public class Subscription {
 
     public void setActive(boolean activa) {
         this.active = activa;
+    }
+
+    public double getPrize() {
+        return prize;
+    }
+
+    public void setPrize(double precio) {
+        this.prize = precio;
+    }
+
+    public User getBuyer() {
+        return buyer;
+    }
+
+    public void setBuyer(User comprador) {
+        this.buyer = comprador;
+    }
+
+    public Lesson getLesson() {
+        return lesson;
+    }
+
+    public void setLesson(Lesson leccion) {
+        this.lesson = leccion;
     }
 }

@@ -1,9 +1,9 @@
 package com.mentory.ense_proyect.service;
 
 import com.mentory.ense_proyect.exception.UserNotFoundException;
+import com.mentory.ense_proyect.model.entity.Role;
+import com.mentory.ense_proyect.model.entity.User;
 import com.mentory.ense_proyect.exception.DuplicatedUserException;
-import com.mentory.ense_proyect.model.Role;
-import com.mentory.ense_proyect.model.User;
 import com.mentory.ense_proyect.repository.RoleRepository;
 import com.mentory.ense_proyect.repository.UserRepository;
 
@@ -52,20 +52,19 @@ public class UserService implements UserDetailsService {
     }
 
     public User create(User user) throws DuplicatedUserException {
-        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            throw new DuplicatedUserException(user);
-        }
 
-        Role userRole = roleRepository.findByRolename("USER");
-
-        return userRepository.save(
-                new User(
-                        user.getUsername(),
-                        passwordEncoder.encode(user.getPassword()),
-                        Set.of(userRole)
-                )
-        );
+    if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+        throw new DuplicatedUserException(user);
     }
+
+    Role userRole = roleRepository.findByRolename("USER");
+    user.getRoles().add(userRole);
+
+    user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+    return userRepository.save(user);
+}
+
 
 
     public User updateUser(String username, List<JsonPatchOperation> changes) throws UserNotFoundException, JsonPatchException {
@@ -85,7 +84,24 @@ public class UserService implements UserDetailsService {
         return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
     }
 
-
+    /**
+     * Obtiene las lecciones creadas por un usuario con paginación.
+     */
+    public Page<com.mentory.ense_proyect.model.entity.Lesson> getUserLessons(String username, PageRequest page) throws UserNotFoundException {
+        User user = userRepository.findById(username).orElseThrow(() -> new UserNotFoundException(username));
+        List<com.mentory.ense_proyect.model.entity.Lesson> lessonsList = user.getLessons() != null 
+            ? new ArrayList<>(user.getLessons()) 
+            : new ArrayList<>();
+        
+        int start = (int) page.getOffset();
+        int end = Math.min(start + page.getPageSize(), lessonsList.size());
+        
+        List<com.mentory.ense_proyect.model.entity.Lesson> pageContent = start < lessonsList.size() 
+            ? lessonsList.subList(start, end) 
+            : new ArrayList<>();
+            
+        return new org.springframework.data.domain.PageImpl<>(pageContent, page, lessonsList.size());
+    }
 
     public void deleteUser(String id) throws UserNotFoundException {
         if(userRepository.existsById(id)){

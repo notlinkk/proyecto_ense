@@ -1,0 +1,4 @@
+/**
+ * Exportación centralizada de contextos.
+ */
+export { AuthProvider, useAuth } from './AuthContext';

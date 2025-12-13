@@ -2,7 +2,11 @@ package com.mentory.ense_proyect.controller;
 
 import com.mentory.ense_proyect.exception.DuplicatedUserException;
 import com.mentory.ense_proyect.exception.UserNotFoundException;
-import com.mentory.ense_proyect.model.User;
+import com.mentory.ense_proyect.model.dto.SubscriptionResponseDTO;
+import com.mentory.ense_proyect.model.entity.Lesson;
+import com.mentory.ense_proyect.model.entity.Subscription;
+import com.mentory.ense_proyect.model.entity.User;
+import com.mentory.ense_proyect.service.SubscriptionService;
 import com.mentory.ense_proyect.service.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,17 +33,86 @@ import com.github.fge.jsonpatch.JsonPatchOperation;
 
 import java.util.*;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 @RestController
 @RequestMapping("users")
 @ExposesResourceFor(User.class) 
 public class UserController {
     UserService userService;
+    SubscriptionService subscriptionService;
     private EntityLinks entityLinks;
 
     @Autowired
-    public UserController(UserService userService, EntityLinks entityLinks) {
+    public UserController(UserService userService, SubscriptionService subscriptionService, EntityLinks entityLinks) {
         this.userService = userService;
+        this.subscriptionService = subscriptionService;
         this.entityLinks = entityLinks;
+    }
+
+    /**
+     * Obtiene el usuario actual autenticado.
+     * Este endpoint es usado por el frontend para obtener los datos del usuario logueado.
+     */
+    @GetMapping(path = "me")
+    public ResponseEntity<User> getCurrentUser() throws UserNotFoundException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        return ResponseEntity.ok(userService.getUser(username));
+    }
+
+    /**
+     * Obtiene las lecciones creadas por el usuario actual.
+     * El count se puede obtener del campo totalElements de la respuesta paginada.
+     */
+    @GetMapping(path = "me/lessons")
+    public ResponseEntity<Page<com.mentory.ense_proyect.model.entity.Lesson>> getMyLessons(
+            @RequestParam(value="page", required=false, defaultValue="0") int page,
+            @RequestParam(value="size", required=false, defaultValue="10") int size
+    ) throws UserNotFoundException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        Page<com.mentory.ense_proyect.model.entity.Lesson> lessons = userService.getUserLessons(username, PageRequest.of(page, size));
+        return ResponseEntity.ok(lessons);
+    }
+
+    /**
+     * Obtiene las suscripciones del usuario actual.
+     * Devuelve un DTO con la información de la lección incluida.
+     */
+    @GetMapping(path = "me/subscriptions")
+    public ResponseEntity<Page<SubscriptionResponseDTO>> getMySubscriptions(
+            @RequestParam(value="page", required=false, defaultValue="0") int page,
+            @RequestParam(value="size", required=false, defaultValue="10") int size
+    ) throws UserNotFoundException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        Page<Subscription> subscriptions = subscriptionService.getUserSubscriptions(
+            username, PageRequest.of(page, size)
+        );
+        
+        // Convert to DTOs with lesson info
+        Page<SubscriptionResponseDTO> dtoPage = subscriptions.map(sub -> {
+            Lesson lesson = sub.getLesson();
+            SubscriptionResponseDTO.LessonSummaryDTO lessonDto = lesson != null 
+                ? new SubscriptionResponseDTO.LessonSummaryDTO(
+                    lesson.getId(),
+                    lesson.getName(),
+                    lesson.getDescription()
+                )
+                : null;
+            return new SubscriptionResponseDTO(
+                sub.getId(),
+                sub.getStartDate(),
+                sub.getEndDate(),
+                sub.getPrize(),
+                sub.isActive(),
+                lessonDto
+            );
+        });
+        
+        return ResponseEntity.ok(dtoPage);
     }
 
     @GetMapping(path = "{id}", version = "0")
@@ -148,7 +221,7 @@ public class UserController {
     @PostMapping
     @JsonView(User.CreateView.class)
     public ResponseEntity<User> createUser(@RequestBody User users) throws DuplicatedUserException {
-        User newUser = userService.addUser(users);
+        User newUser = userService.create(users);
         return ResponseEntity
                 .created(MvcUriComponentsBuilder
                         .fromMethodName(UserController.class, "getUser", users.getUsername())

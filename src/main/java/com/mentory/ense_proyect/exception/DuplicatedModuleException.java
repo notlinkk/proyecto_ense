@@ -1,6 +1,6 @@
 package com.mentory.ense_proyect.exception;
 
-import com.mentory.ense_proyect.model.Module;
+import com.mentory.ense_proyect.model.entity.Module;
 
 public class DuplicatedModuleException extends Throwable  {
     private final Module module;

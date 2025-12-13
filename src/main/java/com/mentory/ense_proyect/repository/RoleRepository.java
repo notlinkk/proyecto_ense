@@ -4,7 +4,8 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import com.mentory.ense_proyect.model.Role;
+
+import com.mentory.ense_proyect.model.entity.Role;
 
 @Repository
 @NullMarked

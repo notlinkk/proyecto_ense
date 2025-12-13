@@ -1,8 +1,8 @@
 package com.mentory.ense_proyect.controller;
 
 import com.mentory.ense_proyect.exception.DuplicatedAbilityException;
+import com.mentory.ense_proyect.model.entity.Ability;
 import com.mentory.ense_proyect.exception.AbilityNotFoundException;
-import com.mentory.ense_proyect.model.Ability;
 import com.mentory.ense_proyect.service.AbilityService;
 
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,4 +1,4 @@
-package com.mentory.ense_proyect.model;
+package com.mentory.ense_proyect.model.entity;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -55,14 +55,14 @@ public class User implements UserDetails{
     private String password;    // Contraseña del usuario
 
     @OneToMany(mappedBy = "buyer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonView(OwnView.class)
+    @JsonIgnore
     private Set<Subscription> subscriptions = new HashSet<>();     // Suscripciones del usuario
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_lessons",
         joinColumns = @JoinColumn(name = "username"),
         inverseJoinColumns = @JoinColumn(name = "lesson_id"))
-    @JsonView(ExternalView.class)
+    @JsonIgnore
     private Set<Lesson> lessons = new HashSet<>();   // Lecciones creadas por el usuario
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -152,5 +152,13 @@ public class User implements UserDetails{
     }
     public void setLessons(Set<Lesson> leccionesCreadas) {
         this.lessons = leccionesCreadas;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 }

@@ -1,0 +1,169 @@
+.create-module-form-container {
+  background: #f9fafb;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.create-module-form-container h3 {
+  color: #374151;
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+}
+
+.create-module-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.create-module-form .form-error {
+  background: #fee2e2;
+  color: #b91c1c;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.create-module-form .form-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.create-module-form .flex-1 {
+  flex: 1;
+  min-width: 100px;
+}
+
+.create-module-form .flex-2 {
+  flex: 2;
+  min-width: 200px;
+}
+
+.create-module-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.create-module-form label {
+  font-weight: 500;
+  color: #4b5563;
+  font-size: 0.875rem;
+}
+
+.create-module-form input,
+.create-module-form textarea {
+  padding: 0.65rem 0.85rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-family: inherit;
+  background: white;
+}
+
+.create-module-form input:focus,
+.create-module-form textarea:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+.create-module-form input:disabled,
+.create-module-form textarea:disabled {
+  background: #f3f4f6;
+  cursor: not-allowed;
+}
+
+.create-module-form input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.create-module-form input[type="number"]::-webkit-inner-spin-button,
+.create-module-form input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.create-module-form textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.create-module-form .form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+
+.create-module-form .btn-primary,
+.create-module-form .btn-secondary {
+  padding: 0.65rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.create-module-form .btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+}
+
+.create-module-form .btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.create-module-form .btn-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.create-module-form .btn-secondary {
+  background: white;
+  color: #6b7280;
+  border: 2px solid #d1d5db;
+}
+
+.create-module-form .btn-secondary:hover:not(:disabled) {
+  border-color: #9ca3af;
+  background: #f9fafb;
+}
+
+.create-module-form .btn-secondary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .create-module-form-container {
+    padding: 1rem;
+  }
+
+  .create-module-form .form-row {
+    flex-direction: column;
+  }
+
+  .create-module-form .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .create-module-form .btn-primary,
+  .create-module-form .btn-secondary {
+    width: 100%;
+  }
+}

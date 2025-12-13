@@ -1,7 +1,10 @@
 package com.mentory.ense_proyect.service;
 
 import com.mentory.ense_proyect.exception.*;
-import com.mentory.ense_proyect.model.Module;
+import com.mentory.ense_proyect.model.dto.ModuleDTO;
+import com.mentory.ense_proyect.model.entity.Lesson;
+import com.mentory.ense_proyect.model.entity.Module;
+import com.mentory.ense_proyect.repository.LessonRepository;
 import com.mentory.ense_proyect.repository.ModuleRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +27,13 @@ import java.util.*;
 @Service
 public class ModuleService {
     private final ModuleRepository moduleRepository;
+    private final LessonRepository lessonRepository;
     private final ObjectMapper mapper;
 
     @Autowired
-    public ModuleService(ModuleRepository moduleRepository,  ObjectMapper mapper) {
+    public ModuleService(ModuleRepository moduleRepository, LessonRepository lessonRepository, ObjectMapper mapper) {
         this.moduleRepository=moduleRepository;
+        this.lessonRepository=lessonRepository;
         this.mapper=mapper;
     }
 
@@ -39,6 +44,20 @@ public class ModuleService {
         } else {
             throw new DuplicatedModuleException(module);
         }
+    }
+
+    /**
+     * Crea un módulo a partir de un DTO.
+     * Genera un ID único y busca la lección asociada.
+     */
+    public Module createModule(ModuleDTO dto) throws LessonNotFoundException {
+        Lesson lesson = lessonRepository.findById(dto.lessonId())
+                .orElseThrow(() -> new LessonNotFoundException(dto.lessonId()));
+        
+        Module module = new Module(dto.title(), dto.description(), dto.content(), dto.duration(), dto.position());
+        module.setId(UUID.randomUUID().toString());
+        module.setLesson(lesson);
+        return moduleRepository.save(module);
     }
 
     public Page<@NonNull Module> getModules(@Nullable String name, PageRequest page) {

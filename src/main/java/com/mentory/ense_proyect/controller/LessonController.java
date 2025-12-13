@@ -1,13 +1,15 @@
 package com.mentory.ense_proyect.controller;
 
 import com.mentory.ense_proyect.exception.LessonNotFoundException;
+import com.mentory.ense_proyect.model.dto.LessonDTO;
+import com.mentory.ense_proyect.model.entity.Lesson;
 import com.mentory.ense_proyect.exception.DuplicatedLessonException;
-import com.mentory.ense_proyect.model.Lesson;
 import com.mentory.ense_proyect.repository.LessonRepository;
 import com.mentory.ense_proyect.service.LessonService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.data.domain.Page;
@@ -59,7 +61,7 @@ public class LessonController {
     public ResponseEntity<Page<Lesson>> getLessonsV0(
             @RequestParam(value="nombre", required=false) String nombre,
             @RequestParam(value="page", required=false, defaultValue="0") int page,
-            @RequestParam(value="size", required=false, defaultValue="2") int pagesize,
+            @RequestParam(value="size", required=false, defaultValue="10") int pagesize,
             @RequestParam(value="sort", required=false, defaultValue="") List<String> sort
     ) {
         Page<Lesson> lessons = lessonService.getLessons(
@@ -75,9 +77,6 @@ public class LessonController {
                 )
         );
 
-        if (lessons.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
         return ResponseEntity.ok(lessons);
     }
 
@@ -140,11 +139,12 @@ public class LessonController {
     }
 
     @PostMapping
-    public ResponseEntity<Lesson> createLesson(@RequestBody Lesson lesson) throws DuplicatedLessonException {
-        Lesson newLesson = lessonService.addLesson(lesson);
+    public ResponseEntity<Lesson> createLesson(@RequestBody LessonDTO lessonDTO, Authentication authentication) throws DuplicatedLessonException {
+        String ownerId = authentication.getName();
+        Lesson newLesson = lessonService.createLesson(lessonDTO, ownerId);
         return ResponseEntity
                 .created(MvcUriComponentsBuilder
-                        .fromMethodName(LessonController.class, "getLesson", lesson.getId())
+                        .fromMethodName(LessonController.class, "getLessonV1", newLesson.getId())
                         .build()
                         .toUri())
                 .body(newLesson);

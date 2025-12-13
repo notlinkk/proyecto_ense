@@ -2,7 +2,7 @@ package com.mentory.ense_proyect.controller;
 
 import com.github.fge.jsonpatch.JsonPatchException;
 import com.mentory.ense_proyect.exception.*;
-import com.mentory.ense_proyect.model.Ability;
+import com.mentory.ense_proyect.model.entity.Ability;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -151,7 +151,7 @@ public class ErrorController extends ResponseEntityExceptionHandler {
                 .header(HttpHeaders.LOCATION,
                         MvcUriComponentsBuilder.fromMethodName(
                                 UserController.class,
-                                "getUsuario",
+                                "getUserV1",
                                 ex.getUser().getUsername()
                         ).build().toUriString())
                 .build();

@@ -1,6 +1,6 @@
 package com.mentory.ense_proyect.exception;
 
-import com.mentory.ense_proyect.model.Lesson;
+import com.mentory.ense_proyect.model.entity.Lesson;
 
 public class DuplicatedLessonException extends Throwable  {
     private final Lesson lesson;

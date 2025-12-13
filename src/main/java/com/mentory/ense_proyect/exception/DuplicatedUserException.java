@@ -1,6 +1,6 @@
 package com.mentory.ense_proyect.exception;
 
-import com.mentory.ense_proyect.model.User;
+import com.mentory.ense_proyect.model.entity.User;
 
 public class DuplicatedUserException extends Throwable {
     private final User user;

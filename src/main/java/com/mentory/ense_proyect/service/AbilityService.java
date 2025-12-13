@@ -1,7 +1,7 @@
 package com.mentory.ense_proyect.service;
 
 import com.mentory.ense_proyect.exception.*;
-import com.mentory.ense_proyect.model.Ability;
+import com.mentory.ense_proyect.model.entity.Ability;
 import com.mentory.ense_proyect.repository.AbilityRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
