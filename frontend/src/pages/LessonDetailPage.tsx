@@ -103,6 +103,13 @@ function LessonDetailPage() {
         <span className="current">{lesson.name}</span>
       </nav>
 
+      {/* Hero Image */}
+      {lesson.imageUrl && (
+        <div className="lesson-hero-image">
+          <img src={lesson.imageUrl} alt={lesson.name} />
+        </div>
+      )}
+
       {/* Header de la lección */}
       <header className="lesson-header">
         <div className="lesson-header-content">
@@ -112,14 +119,14 @@ function LessonDetailPage() {
             
             <div className="lesson-stats">
               <span className="stat">
-                📚 {sortedModules.length} {sortedModules.length === 1 ? 'módulo' : 'módulos'}
+                {sortedModules.length} {sortedModules.length === 1 ? 'módulo' : 'módulos'}
               </span>
               <span className="stat">
-                ⏱️ {totalDuration} min en total
+                {totalDuration} min
               </span>
               {isOwner && (
                 <span className="stat owner-badge">
-                  👑 Eres el creador
+                  Creador
                 </span>
               )}
             </div>
@@ -132,23 +139,23 @@ function LessonDetailPage() {
               onClick={handleSubscribe}
               disabled={isSubscribing}
             >
-              {isSubscribing ? '⏳ Suscribiendo...' : '🔔 Suscribirse'}
+              {isSubscribing ? 'Suscribiendo...' : 'Suscribirse'}
             </button>
           )}
 
           {!isOwner && hasAccess && (
-            <span className="subscribed-badge">✅ Suscrito</span>
+            <span className="subscribed-badge">Suscrito</span>
           )}
         </div>
 
         {/* Habilidades */}
         {lesson.abilities && lesson.abilities.length > 0 && (
           <div className="abilities-section">
-            <h3>Habilidades que desarrollarás:</h3>
+            <h3>Habilidades que desarrollarás</h3>
             <div className="abilities-list">
               {lesson.abilities.map((ability) => (
                 <span key={ability.name} className="ability-badge">
-                  🎯 {ability.name}
+                  {ability.name}
                 </span>
               ))}
             </div>
@@ -166,7 +173,7 @@ function LessonDetailPage() {
                 className="add-module-btn"
                 onClick={() => setShowAddModule(true)}
               >
-                ➕ Añadir Módulo
+                Añadir Módulo
               </button>
             )}
           </div>
@@ -207,7 +214,6 @@ function LessonDetailPage() {
       ) : (
         <section className="modules-section locked-section">
           <div className="locked-content">
-            <span className="lock-icon">🔒</span>
             <h2>Contenido Bloqueado</h2>
             <p>Suscríbete a esta lección para acceder a los {sortedModules.length} módulos.</p>
             <button 
@@ -215,7 +221,7 @@ function LessonDetailPage() {
               onClick={handleSubscribe}
               disabled={isSubscribing}
             >
-              {isSubscribing ? '⏳ Suscribiendo...' : '🔔 Suscribirse para ver el contenido'}
+              {isSubscribing ? 'Suscribiendo...' : 'Suscribirse para ver el contenido'}
             </button>
           </div>
         </section>
@@ -223,16 +229,8 @@ function LessonDetailPage() {
 
       {/* Botón de acción */}
       <div className="lesson-actions">
-        {hasAccess && sortedModules.length > 0 && (
-          <button 
-            className="start-button"
-            onClick={() => setExpandedModule(0)}
-          >
-            🚀 Comenzar Lección
-          </button>
-        )}
         <Link to="/lessons" className="back-link">
-          ← Volver a lecciones
+          Volver a lecciones
         </Link>
       </div>
     </div>

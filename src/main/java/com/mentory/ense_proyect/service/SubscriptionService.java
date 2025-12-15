@@ -62,7 +62,7 @@ public class SubscriptionService {
         
         // Check if user already has subscription to this lesson
         if (subscriptionRepository.existsByBuyerUsernameAndLessonId(username, dto.lessonId())) {
-            throw new DuplicatedSubscriptionException(null);
+            throw new DuplicatedSubscriptionException("You already have a subscription to this lesson");
         }
         
         Lesson lesson = lessonRepository.findById(dto.lessonId())
@@ -76,10 +76,12 @@ public class SubscriptionService {
             throw new IllegalArgumentException("Cannot subscribe to your own lesson");
         }
         
+        LocalDate startDate = LocalDate.now();
+        LocalDate endDate = startDate.plusMonths(1);
+        
         Subscription subscription = new Subscription(
-            LocalDate.now().toString(),  // startDate
-            null,                         // endDate (null = indefinite)
-            0.0,                          // prize (free for now)
+            startDate.toString(),         // startDate
+            endDate.toString(),           // endDate (1 month later)
             true,                         // active
             user,
             lesson
@@ -120,8 +122,9 @@ public class SubscriptionService {
     }
 
     public Page<@NonNull Subscription> getSubscriptions(@Nullable String id, PageRequest page) {
-        Example<Subscription> example = Example.of(new Subscription(id, null, 0, false, null, null));
-        return subscriptionRepository.findAll(example, page);
+        Subscription example = new Subscription();
+        example.setId(id);
+        return subscriptionRepository.findAll(Example.of(example), page);
     }
 
     public Subscription getSubscription(String id) throws SubscriptionNotFoundException {

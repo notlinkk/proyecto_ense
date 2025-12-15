@@ -62,36 +62,18 @@ function HomePage() {
       <section className="hero-section">
         <div className="hero-content">
           <h1>
-            ¡Hola, <span className="user-name">{user?.name || 'Estudiante'}</span>!
+            Hola, <span className="user-name">{user?.name || 'Estudiante'}</span>
           </h1>
-          <p>Bienvenido a tu espacio de aprendizaje. ¿Qué te gustaría aprender hoy?</p>
-        </div>
-      </section>
-
-      {/* Quick Stats */}
-      <section className="stats-section">
-        <div className="stat-card">
-          <span className="stat-icon">📚</span>
-          <div className="stat-info">
-            <span className="stat-number">{lessons.length}</span>
-            <span className="stat-label">Lecciones disponibles</span>
-          </div>
-        </div>
-        <div className="stat-card">
-          <span className="stat-icon">🎯</span>
-          <div className="stat-info">
-            <span className="stat-number">{user?.lessons?.length || 0}</span>
-            <span className="stat-label">Mis lecciones</span>
-          </div>
+          <p>¿Qué te gustaría aprender hoy?</p>
         </div>
       </section>
 
       {/* Lecciones destacadas */}
       <section className="lessons-section">
         <div className="section-header">
-          <h2>Lecciones Destacadas</h2>
+          <h2>Lecciones</h2>
           <Link to="/lessons" className="view-all-link">
-            Ver todas →
+            Ver todas
           </Link>
         </div>
 
@@ -106,21 +88,6 @@ function HomePage() {
             <p>No hay lecciones disponibles en este momento.</p>
           </div>
         )}
-      </section>
-
-      {/* Quick Actions */}
-      <section className="actions-section">
-        <h2>Accesos Rápidos</h2>
-        <div className="actions-grid">
-          <Link to="/lessons" className="action-card">
-            <span className="action-icon">📖</span>
-            <span className="action-label">Explorar Lecciones</span>
-          </Link>
-          <Link to="/profile" className="action-card">
-            <span className="action-icon">👤</span>
-            <span className="action-label">Mi Perfil</span>
-          </Link>
-        </div>
       </section>
     </div>
   );

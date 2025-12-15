@@ -3,6 +3,7 @@ package com.mentory.ense_proyect.model.entity;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonView;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
@@ -33,6 +34,7 @@ public class Module {
     private String description; // Descripción del módulo
 
     @JsonView(CreateView.class)
+    @Column(columnDefinition = "TEXT")
     private String content;   // Puede ser texto, URL de video, etc.
 
     @JsonView(CreateView.class)

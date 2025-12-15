@@ -8,7 +8,6 @@ public record SubscriptionResponseDTO(
     String id,
     String startDate,
     String endDate,
-    double prize,
     boolean active,
     LessonSummaryDTO lesson
 ) {
@@ -18,6 +17,7 @@ public record SubscriptionResponseDTO(
     public record LessonSummaryDTO(
         String id,
         String name,
-        String description
+        String description,
+        double price
     ) {}
 }

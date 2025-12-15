@@ -35,7 +35,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-primary);
   color: white;
   border: none;
   border-radius: var(--border-radius-md);
@@ -47,8 +47,7 @@
 }
 
 .create-lesson-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  background: var(--color-primary-dark);
 }
 
 /* Barra de búsqueda */
@@ -61,16 +60,17 @@
 .search-input {
   flex: 1;
   padding: var(--spacing-md) var(--spacing-lg);
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
   border-radius: var(--border-radius-md);
   font-size: 1rem;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  transition: border-color var(--transition-fast);
 }
 
 .search-input:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
 .search-button {
@@ -109,7 +109,7 @@
   padding: var(--spacing-sm) var(--spacing-lg);
   background-color: var(--color-surface);
   color: var(--color-text-primary);
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
   border-radius: var(--border-radius-md);
   font-weight: 500;
   cursor: pointer;
@@ -139,7 +139,7 @@
   align-items: center;
   justify-content: center;
   background-color: var(--color-surface);
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
   border-radius: var(--border-radius-md);
   cursor: pointer;
   font-weight: 500;

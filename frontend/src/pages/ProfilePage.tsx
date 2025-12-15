@@ -12,6 +12,7 @@ import '../styles/ProfilePage.css';
  * Muestra:
  * - Información personal del usuario
  * - Estadísticas de aprendizaje
+ * - Opción de convertirse en profesor
  * - Opción de cerrar sesión
  */
 function ProfilePage() {
@@ -23,6 +24,7 @@ function ProfilePage() {
   const [myLessons, setMyLessons] = useState<Lesson[]>([]);
   const [lessonsCount, setLessonsCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [isBecomingTeacher, setIsBecomingTeacher] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -52,6 +54,24 @@ function ProfilePage() {
   const handleLogout = () => {
     logout();
     navigate('/login', { replace: true });
+  };
+
+  // Check if user has TEACHER or ADMIN role
+  const isTeacher = user?.roles?.some(
+    role => role.rolename === 'TEACHER' || role.rolename === 'ADMIN'
+  ) ?? false;
+
+  const handleBecomeTeacher = async () => {
+    try {
+      setIsBecomingTeacher(true);
+      const updatedUser = await protectedApi.becomeTeacher();
+      setUser(updatedUser);
+    } catch (err) {
+      console.error('Error al convertirse en profesor:', err);
+      setError('No se pudo completar la solicitud. Inténtalo de nuevo.');
+    } finally {
+      setIsBecomingTeacher(false);
+    }
   };
 
   if (isLoading) {
@@ -88,15 +108,15 @@ function ProfilePage() {
           <h2>Información Personal</h2>
           <div className="info-grid">
             <div className="info-item">
-              <span className="info-label">👤 Nombre de usuario</span>
+              <span className="info-label">Nombre de usuario</span>
               <span className="info-value">{user?.username}</span>
             </div>
             <div className="info-item">
-              <span className="info-label">📧 Correo electrónico</span>
+              <span className="info-label">Correo electrónico</span>
               <span className="info-value">{user?.email}</span>
             </div>
             <div className="info-item">
-              <span className="info-label">📝 Nombre completo</span>
+              <span className="info-label">Nombre completo</span>
               <span className="info-value">
                 {user?.name} {user?.surname1} {user?.surname2 || ''}
               </span>
@@ -119,10 +139,41 @@ function ProfilePage() {
           </div>
         </section>
 
+        {/* Convertirse en Profesor */}
+        {!isTeacher && (
+          <section className="profile-section teacher-section">
+            <h2>Conviértete en Profesor</h2>
+            <p className="teacher-info">
+              ¿Quieres compartir tus conocimientos? Conviértete en profesor y podrás 
+              crear tus propias lecciones.
+            </p>
+            <button 
+              onClick={handleBecomeTeacher} 
+              className="become-teacher-button"
+              disabled={isBecomingTeacher}
+            >
+              {isBecomingTeacher ? 'Procesando...' : 'Convertirme en Profesor'}
+            </button>
+          </section>
+        )}
+
+        {/* Estado de Profesor */}
+        {isTeacher && (
+          <section className="profile-section teacher-section teacher-active">
+            <h2>Eres Profesor</h2>
+            <p className="teacher-info">
+              Tienes permisos de profesor. Puedes crear y gestionar lecciones.
+            </p>
+            <Link to="/lessons/new" className="create-lesson-link">
+              Crear Nueva Lección
+            </Link>
+          </section>
+        )}
+
         {/* Lecciones del usuario */}
         {myLessons.length > 0 && (
           <section className="profile-section">
-            <h2>📚 Mis Lecciones Creadas</h2>
+            <h2>Mis Lecciones Creadas</h2>
             <div className="user-lessons">
               {myLessons.map((lesson) => (
                 <Link to={`/lessons/${lesson.id}`} key={lesson.id} className="user-lesson-item">
@@ -137,7 +188,7 @@ function ProfilePage() {
         {/* Suscripciones */}
         {subscriptions.length > 0 && (
           <section className="profile-section">
-            <h2>🔔 Mis Suscripciones</h2>
+            <h2>Mis Suscripciones</h2>
             <div className="user-lessons">
               {subscriptions.map((sub) => (
                 <Link to={`/lessons/${sub.lesson?.id}`} key={sub.id} className="user-lesson-item subscription-item">
@@ -149,14 +200,8 @@ function ProfilePage() {
           </section>
         )}
 
-        {/* Seguridad de la sesión */}
-        <section className="profile-section security-section">
-          <h2>🔒 Seguridad</h2>
-          <p className="security-info">
-            Tu sesión está protegida con autenticación JWT. 
-            El token de acceso se almacena de forma segura en memoria 
-            y el token de refresco está protegido en una cookie HttpOnly.
-          </p>
+        {/* Acciones */}
+        <section className="profile-section">
           <button onClick={handleLogout} className="logout-button">
             Cerrar Sesión
           </button>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { protectedApi } from '../api';
-import { Lesson } from '../types';
+import { Lesson, User } from '../types';
 import { LessonCard, LoadingSpinner } from '../components';
 import '../styles/LessonsPage.css';
 
@@ -12,15 +12,35 @@ import '../styles/LessonsPage.css';
  * - Búsqueda por nombre
  * - Paginación
  * - Vista en grid
+ * - Botón de crear lección (solo para profesores)
  */
 function LessonsPage() {
   const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const pageSize = 9;
+
+  // Check if user is a teacher or admin
+  const isTeacher = user?.roles?.some(
+    role => role.rolename === 'TEACHER' || role.rolename === 'ADMIN'
+  ) ?? false;
+
+  useEffect(() => {
+    // Fetch user data once on mount
+    const fetchUser = async () => {
+      try {
+        const userData = await protectedApi.getCurrentUser();
+        setUser(userData);
+      } catch (err) {
+        console.error('Error al cargar usuario:', err);
+      }
+    };
+    fetchUser();
+  }, []);
 
   useEffect(() => {
     fetchLessons();
@@ -65,9 +85,11 @@ function LessonsPage() {
             <h1>Lecciones</h1>
             <p>Explora todas las lecciones disponibles</p>
           </div>
-          <Link to="/lessons/new" className="create-lesson-btn">
-            ➕ Nueva Lección
-          </Link>
+          {isTeacher && (
+            <Link to="/lessons/new" className="create-lesson-btn">
+              Nueva Lección
+            </Link>
+          )}
         </div>
       </div>
 
@@ -81,7 +103,7 @@ function LessonsPage() {
           className="search-input"
         />
         <button type="submit" className="search-button">
-          🔍 Buscar
+          Buscar
         </button>
       </form>
 
@@ -109,7 +131,7 @@ function LessonsPage() {
                 disabled={currentPage === 0}
                 className="page-btn"
               >
-                ← Anterior
+                Anterior
               </button>
               
               <div className="page-numbers">
@@ -129,7 +151,7 @@ function LessonsPage() {
                 disabled={currentPage === totalPages - 1}
                 className="page-btn"
               >
-                Siguiente →
+                Siguiente
               </button>
             </div>
           )}

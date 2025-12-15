@@ -1,8 +1,10 @@
 package com.mentory.ense_proyect.model.entity;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -87,7 +89,19 @@ public class User implements UserDetails{
     @Override
     @NonNull
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream().map(role -> new SimpleGrantedAuthority("ROLE_"+role.getRolename())).toList();
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        
+        // Add roles (e.g., ROLE_ADMIN, ROLE_TEACHER, ROLE_USER)
+        for (Role role : roles) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRolename()));
+            
+            // Add permissions from each role (e.g., lessons:read, lessons:write)
+            for (Permission permission : role.getPermissions()) {
+                authorities.add(new SimpleGrantedAuthority(permission.getId()));
+            }
+        }
+        
+        return authorities;
     }
 
 

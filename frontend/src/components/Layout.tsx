@@ -27,7 +27,7 @@ function Layout() {
       <header className="layout-header">
         <div className="header-container">
           <NavLink to="/home" className="logo">
-            <h1>EnSe</h1>
+            <h1>Mentory</h1>
           </NavLink>
 
           <nav className="main-nav">
@@ -64,7 +64,7 @@ function Layout() {
 
       {/* Footer */}
       <footer className="layout-footer">
-        <p>EnSe - Sistema de Enseñanza © {new Date().getFullYear()}</p>
+        <p>Mentory © {new Date().getFullYear()}</p>
       </footer>
     </div>
   );

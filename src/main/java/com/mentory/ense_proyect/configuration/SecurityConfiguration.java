@@ -36,12 +36,15 @@ public class SecurityConfiguration {
     @Bean
 public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     return http
+        .cors(cors -> cors.configurationSource(corsConfigurationSource))
         .authorizeHttpRequests(authorize -> authorize
-            // 🔓 Swagger / OpenAPI
+            // 🔓 Swagger / OpenAPI / Scalar
             .requestMatchers(
                 "/v3/api-docs/**",
                 "/swagger-ui.html",
-                "/swagger-ui/**"
+                "/swagger-ui/**",
+                "/scalar/**",
+                "/scalar.html"
             ).permitAll()
 
             // 🔓 Auth endpoints

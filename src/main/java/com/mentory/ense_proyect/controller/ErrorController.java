@@ -113,19 +113,28 @@ public class ErrorController extends ResponseEntityExceptionHandler {
     @ExceptionHandler(DuplicatedSubscriptionException.class)
     public ErrorResponse handle(DuplicatedSubscriptionException ex) {
         ProblemDetail error = ProblemDetail.forStatus(HttpStatus.CONFLICT);
-        error.setDetail("Ya existe una suscripción con id="+ex.getSubscription().getId()+" en la base de datos: "+ex.getSubscription());
-        error.setType(MvcUriComponentsBuilder.fromController(ErrorController.class)
-                .pathSegment("error", "suscripcion-duplicada").build().toUri());
-        error.setTitle("Suscripción "+ex.getSubscription().getId()+" ya existe");
+        
+        if (ex.getSubscription() != null) {
+            error.setDetail("Ya existe una suscripción con id="+ex.getSubscription().getId()+" en la base de datos: "+ex.getSubscription());
+            error.setTitle("Suscripción "+ex.getSubscription().getId()+" ya existe");
+            error.setType(MvcUriComponentsBuilder.fromController(ErrorController.class)
+                    .pathSegment("error", "suscripcion-duplicada").build().toUri());
 
-        return ErrorResponse.builder(ex, error)
-                .header(HttpHeaders.LOCATION,
-                        MvcUriComponentsBuilder.fromMethodName(
-                                SubscriptionController.class,
-                                "getSuscripcion",
-                                ex.getSubscription().getId()
-                        ).build().toUriString())
-                .build();
+            return ErrorResponse.builder(ex, error)
+                    .header(HttpHeaders.LOCATION,
+                            MvcUriComponentsBuilder.fromMethodName(
+                                    SubscriptionController.class,
+                                    "getSuscripcion",
+                                    ex.getSubscription().getId()
+                            ).build().toUriString())
+                    .build();
+        } else {
+            error.setDetail(ex.getMessage());
+            error.setTitle("Suscripción duplicada");
+            error.setType(MvcUriComponentsBuilder.fromController(ErrorController.class)
+                    .pathSegment("error", "suscripcion-duplicada").build().toUri());
+            return ErrorResponse.builder(ex, error).build();
+        }
     }
 
     @ExceptionHandler(UserNotFoundException.class)

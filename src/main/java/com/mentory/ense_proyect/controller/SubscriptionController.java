@@ -28,6 +28,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import com.github.fge.jsonpatch.JsonPatchOperation;
 import com.github.fge.jsonpatch.JsonPatchException;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import java.util.*;
 
 @RestController
@@ -44,10 +46,12 @@ public class SubscriptionController {
     }
 
     @GetMapping(path="{id}", version = "0")
+    @PreAuthorize("hasAuthority('subscriptions:read')")
     public ResponseEntity<Subscription> getSubscriptionV0(@PathVariable("id") String id) throws SubscriptionNotFoundException{
         return ResponseEntity.ok(subscriptionService.getSubscription(id));
     }
     @GetMapping(path="{id}", version = "1")
+    @PreAuthorize("hasAuthority('subscriptions:read')")
     public ResponseEntity<EntityModel<Subscription>> getSubscriptionV1(@PathVariable("id") String id) throws SubscriptionNotFoundException{
         EntityModel<Subscription> subscription = EntityModel.of(subscriptionService.getSubscription(id));
         subscription.add(
@@ -59,6 +63,7 @@ public class SubscriptionController {
     }
 
     @GetMapping(version = "0")
+    @PreAuthorize("hasAuthority('subscriptions:read')")
     public ResponseEntity<Page<Subscription>> getSubscriptionsV0(
             @RequestParam(value="id", required=false) String id,
             @RequestParam(value="page", required=false, defaultValue="0") int page,
@@ -81,6 +86,7 @@ public class SubscriptionController {
     }
 
     @GetMapping(version = "1")
+    @PreAuthorize("hasAuthority('subscriptions:read')")
     public ResponseEntity<PagedModel<Subscription>> getSubscriptionsV1(
             @RequestParam(value="id", required=false) String id,
             @RequestParam(value="page", required=false, defaultValue="0") int page,
@@ -135,6 +141,7 @@ public class SubscriptionController {
      * Subscribe to a lesson. Uses authenticated user and lesson ID from DTO.
      */
     @PostMapping
+    @PreAuthorize("hasAuthority('subscriptions:write')")
     public ResponseEntity<Subscription> createSubscription(
             @RequestBody SubscriptionDTO subscriptionDTO,
             Authentication authentication
@@ -153,6 +160,7 @@ public class SubscriptionController {
      * Check if user has active subscription to a lesson.
      */
     @GetMapping("check/{lessonId}")
+    @PreAuthorize("hasAuthority('subscriptions:read')")
     public ResponseEntity<Map<String, Boolean>> checkSubscription(
             @PathVariable("lessonId") String lessonId,
             Authentication authentication
@@ -163,6 +171,7 @@ public class SubscriptionController {
     }
 
     @PatchMapping("{id}")
+    @PreAuthorize("hasAuthority('subscriptions:update')")
     public ResponseEntity<Subscription> updateSubscription(
             @PathVariable("id") String id,
             @RequestBody List<JsonPatchOperation> changes
@@ -171,6 +180,7 @@ public class SubscriptionController {
     }
 
     @DeleteMapping({"{id}"})
+    @PreAuthorize("hasAuthority('subscriptions:delete')")
     public ResponseEntity<Void> deleteSubscription(@PathVariable("id") String id) throws
             SubscriptionNotFoundException {
         subscriptionService.deleteSubscription(id);

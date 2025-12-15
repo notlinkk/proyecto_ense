@@ -47,6 +47,12 @@ public class Lesson {
     @JsonView(CreateView.class)
     private String ownerId; // ID del usuario al que pertenece la lección
 
+    @JsonView(CreateView.class)
+    private double price; // Precio de la lección
+
+    @JsonView(CreateView.class)
+    private String imageUrl; // URL de la imagen de la lección
+
     @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonView(OwnView.class)
     private Set<Subscription> subscriptions = new HashSet<>(); // Suscripciones asociadas a la lección
@@ -74,6 +80,24 @@ public class Lesson {
         this.description = descripcion;
         this.ownerId = propietarioId;
         this.name = nombre;
+        this.price = 0.0;
+        this.imageUrl = null;
+    }
+
+    public Lesson(String propietarioId, String nombre, String descripcion, double price) {
+        this.description = descripcion;
+        this.ownerId = propietarioId;
+        this.name = nombre;
+        this.price = price;
+        this.imageUrl = null;
+    }
+
+    public Lesson(String propietarioId, String nombre, String descripcion, double price, String imageUrl) {
+        this.description = descripcion;
+        this.ownerId = propietarioId;
+        this.name = nombre;
+        this.price = price;
+        this.imageUrl = imageUrl;
     }
 
     // Getters and Setters
@@ -107,6 +131,22 @@ public class Lesson {
 
     public void setOwnerId(String propietarioId) {
         this.ownerId = propietarioId;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public Set<Subscription> getSubscriptions() {

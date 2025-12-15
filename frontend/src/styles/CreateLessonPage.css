@@ -5,16 +5,16 @@
 }
 
 .create-lesson-container {
-  background: white;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   padding: 2rem;
   max-width: 600px;
   width: 100%;
 }
 
 .create-lesson-container h1 {
-  color: #333;
+  color: var(--color-text-primary);
   margin-bottom: 1.5rem;
   font-size: 1.75rem;
   text-align: center;
@@ -27,8 +27,8 @@
 }
 
 .create-lesson-form .form-error {
-  background: #fee2e2;
-  color: #b91c1c;
+  background: var(--color-error-bg);
+  color: var(--color-error);
   padding: 0.75rem 1rem;
   border-radius: 8px;
   font-size: 0.875rem;
@@ -43,30 +43,31 @@
 
 .create-lesson-form label {
   font-weight: 500;
-  color: #374151;
+  color: var(--color-text-secondary);
   font-size: 0.95rem;
 }
 
 .create-lesson-form input,
 .create-lesson-form textarea {
   padding: 0.75rem 1rem;
-  border: 2px solid #e5e7eb;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   font-size: 1rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  background: var(--color-surface-secondary);
+  color: var(--color-text-primary);
+  transition: border-color 0.2s;
   font-family: inherit;
 }
 
 .create-lesson-form input:focus,
 .create-lesson-form textarea:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+  border-color: var(--color-primary);
 }
 
 .create-lesson-form input:disabled,
 .create-lesson-form textarea:disabled {
-  background: #f3f4f6;
+  background: var(--color-surface-hover);
   cursor: not-allowed;
 }
 
@@ -98,14 +99,13 @@
 }
 
 .create-lesson-form .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-primary);
   color: white;
   border: none;
 }
 
 .create-lesson-form .btn-primary:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  background: var(--color-primary-dark);
 }
 
 .create-lesson-form .btn-primary:disabled {
@@ -114,19 +114,99 @@
 }
 
 .create-lesson-form .btn-secondary {
-  background: white;
-  color: #6b7280;
-  border: 2px solid #e5e7eb;
+  background: transparent;
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
 }
 
 .create-lesson-form .btn-secondary:hover:not(:disabled) {
-  border-color: #d1d5db;
-  background: #f9fafb;
+  border-color: var(--color-text-muted);
+  background: var(--color-surface-hover);
 }
 
 .create-lesson-form .btn-secondary:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+}
+
+/* Abilities Grid */
+.abilities-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--color-surface-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.ability-tag {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ability-tag:hover:not(:disabled) {
+  border-color: var(--color-primary);
+}
+
+.ability-tag.selected {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.ability-tag:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.label-hint {
+  font-weight: 400;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.selected-count {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+/* Form Row */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 1rem;
+}
+
+/* Image Preview */
+.image-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.image-preview label {
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+}
+
+.image-preview img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
 }
 
 /* Responsive */
@@ -137,6 +217,10 @@
 
   .create-lesson-container {
     padding: 1.5rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
   }
 
   .create-lesson-form .form-actions {

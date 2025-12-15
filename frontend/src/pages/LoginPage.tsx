@@ -156,8 +156,8 @@ function LoginPage() {
     <div className="login-container">
       <div className="login-card">
         <div className="login-header">
-          <h1>EnSe</h1>
-          <p>{isRegisterMode ? 'Crear cuenta' : 'Sistema de Enseñanza'}</p>
+          <h1>Mentory</h1>
+          <p>{isRegisterMode ? 'Crear cuenta' : 'Aprende y enseña'}</p>
         </div>
 
         {/* Mensaje de éxito */}
@@ -332,12 +332,6 @@ function LoginPage() {
           </button>
         </div>
 
-        {/* Información de seguridad */}
-        <div className="security-info">
-          <small>
-            🔒 Tu sesión está protegida con JWT y cookies HttpOnly
-          </small>
-        </div>
       </div>
     </div>
   );

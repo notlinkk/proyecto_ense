@@ -19,7 +19,7 @@ function ModuleItem({ module, index, isExpanded, onToggle }: ModuleItemProps) {
         <div className="module-number">{index + 1}</div>
         <div className="module-info">
           <h4 className="module-title">{module.title}</h4>
-          <span className="module-duration">⏱️ {module.duration} min</span>
+          <span className="module-duration">{module.duration} min</span>
         </div>
         <span className="expand-icon">{isExpanded ? '▲' : '▼'}</span>
       </button>
@@ -40,7 +40,7 @@ function ModuleItem({ module, index, isExpanded, onToggle }: ModuleItemProps) {
                     rel="noopener noreferrer"
                     className="content-link"
                   >
-                    🔗 Ver recurso externo
+                    Ver recurso externo
                   </a>
                 ) : (
                   <p>{module.content}</p>

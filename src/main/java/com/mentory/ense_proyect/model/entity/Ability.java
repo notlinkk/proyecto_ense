@@ -3,6 +3,8 @@ package com.mentory.ense_proyect.model.entity;
 
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
@@ -20,6 +22,7 @@ public class Ability  {
         String description;
 
         @ManyToMany(mappedBy = "abilities")
+        @JsonIgnore
         Set <Lesson> lessons;
 
         public Ability() {}

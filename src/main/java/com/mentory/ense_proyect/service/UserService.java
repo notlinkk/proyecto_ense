@@ -7,9 +7,6 @@ import com.mentory.ense_proyect.exception.DuplicatedUserException;
 import com.mentory.ense_proyect.repository.RoleRepository;
 import com.mentory.ense_proyect.repository.UserRepository;
 
-import io.swagger.v3.core.util.Json;
-import tools.jackson.databind.ObjectMapper;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
@@ -21,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.data.domain.Page;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
 import com.github.fge.jsonpatch.JsonPatchOperation;
@@ -109,6 +107,43 @@ public class UserService implements UserDetailsService {
         } else {
             throw new UserNotFoundException(id);
         }
+    }
+
+    /**
+     * Adds a role to the current user.
+     * Only allows adding the TEACHER role.
+     * @param username The username of the user
+     * @param rolename The role to add (must be "TEACHER")
+     * @return The updated user
+     */
+    public User addRoleToCurrentUser(String username, String rolename) throws UserNotFoundException {
+        if (!"TEACHER".equals(rolename)) {
+            throw new IllegalArgumentException("Only adding TEACHER role is allowed");
+        }
+        
+        User user = userRepository.findById(username)
+            .orElseThrow(() -> new UserNotFoundException(username));
+        
+        // Check if user already has the role
+        Role teacherRole = roleRepository.findByRolename("TEACHER");
+        if (teacherRole != null && !user.getRoles().contains(teacherRole)) {
+            user.getRoles().add(teacherRole);
+        }
+        
+        return userRepository.save(user);
+    }
+
+    /**
+     * Checks if a user has the TEACHER role.
+     * @param username The username to check
+     * @return true if the user is a teacher
+     */
+    public boolean isTeacher(String username) throws UserNotFoundException {
+        User user = userRepository.findById(username)
+            .orElseThrow(() -> new UserNotFoundException(username));
+        
+        return user.getRoles().stream()
+            .anyMatch(role -> "TEACHER".equals(role.getRolename()) || "ADMIN".equals(role.getRolename()));
     }
 
 

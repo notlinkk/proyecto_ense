@@ -3,6 +3,7 @@ import {
   User, 
   Lesson, 
   Module, 
+  Ability,
   PageResponse, 
   CreateLessonDTO, 
   CreateModuleDTO,
@@ -52,6 +53,27 @@ export const protectedApi = {
    */
   getMySubscriptions: async (page = 0, size = 10): Promise<PageResponse<Subscription>> => {
     const response = await apiClient.get<PageResponse<Subscription>>('/users/me/subscriptions', {
+      params: { page, size }
+    });
+    return response.data;
+  },
+
+  /**
+   * Convertirse en profesor.
+   * Añade el rol TEACHER a la colección de roles del usuario actual.
+   */
+  becomeTeacher: async (): Promise<User> => {
+    const response = await apiClient.post<User>('/users/me/roles', { rolename: 'TEACHER' });
+    return response.data;
+  },
+
+  // ==================== ABILITY ENDPOINTS ====================
+
+  /**
+   * Obtiene todas las habilidades disponibles.
+   */
+  getAbilities: async (page = 0, size = 100): Promise<PageResponse<Ability>> => {
+    const response = await apiClient.get<PageResponse<Ability>>('/abilities', {
       params: { page, size }
     });
     return response.data;

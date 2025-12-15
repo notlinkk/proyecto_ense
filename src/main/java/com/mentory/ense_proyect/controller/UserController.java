@@ -33,6 +33,7 @@ import com.github.fge.jsonpatch.JsonPatchOperation;
 
 import java.util.*;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -99,14 +100,14 @@ public class UserController {
                 ? new SubscriptionResponseDTO.LessonSummaryDTO(
                     lesson.getId(),
                     lesson.getName(),
-                    lesson.getDescription()
+                    lesson.getDescription(),
+                    lesson.getPrice()
                 )
                 : null;
             return new SubscriptionResponseDTO(
                 sub.getId(),
                 sub.getStartDate(),
                 sub.getEndDate(),
-                sub.getPrize(),
                 sub.isActive(),
                 lessonDto
             );
@@ -115,12 +116,30 @@ public class UserController {
         return ResponseEntity.ok(dtoPage);
     }
 
+    /**
+     * Añade un rol al usuario actual.
+     * Endpoint RESTful: POST a la colección de roles del usuario.
+     * Solo permite añadir el rol TEACHER.
+     */
+    @PostMapping(path = "me/roles")
+    public ResponseEntity<User> addRoleToCurrentUser(
+            @RequestBody Map<String, String> roleRequest
+    ) throws UserNotFoundException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        String rolename = roleRequest.get("rolename");
+        User updatedUser = userService.addRoleToCurrentUser(username, rolename);
+        return ResponseEntity.ok(updatedUser);
+    }
+
     @GetMapping(path = "{id}", version = "0")
+    @PreAuthorize("hasAuthority('users:read')")
     public ResponseEntity <User> getUserV0(@PathVariable("id") String id) throws UserNotFoundException {
         return ResponseEntity.ok(userService.getUser(id));
     }
 
     @GetMapping(path = "{id}", version = "1")
+    @PreAuthorize("hasAuthority('users:read')")
     public ResponseEntity <EntityModel<User>> getUserV1(@PathVariable("id") String id) throws UserNotFoundException {
 
         EntityModel<User> user = EntityModel.of(userService.getUser(id));
@@ -133,6 +152,7 @@ public class UserController {
     }
 
     @GetMapping( version = "0")
+    @PreAuthorize("hasAuthority('users:read')")
     public ResponseEntity<Page<User>> getUsersV0(
             @RequestParam(value="nombre", required=false) String nombre,
             @RequestParam(value="page", required=false, defaultValue="0") int page,
@@ -159,6 +179,7 @@ public class UserController {
     }
     
     @GetMapping(version = "1")
+    @PreAuthorize("hasAuthority('users:read')")
     public ResponseEntity<PagedModel<User>> getUsersV1(
         @RequestParam(value="nombre", required=false) String nombre,
         @RequestParam(value="page", required=false, defaultValue="0") int page,
@@ -219,6 +240,7 @@ public class UserController {
 
 
     @PostMapping
+    @PreAuthorize("hasAuthority('users:write')")
     @JsonView(User.CreateView.class)
     public ResponseEntity<User> createUser(@RequestBody User users) throws DuplicatedUserException {
         User newUser = userService.create(users);
@@ -231,12 +253,14 @@ public class UserController {
     }
 
     @DeleteMapping({"{id}"})
+    @PreAuthorize("hasAuthority('users:delete')")
     public ResponseEntity<Void> deleteUser(@PathVariable("id") String id) throws UserNotFoundException {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("{id}")
+    @PreAuthorize("hasAuthority('users:update')")
     public ResponseEntity<User> updateUser(
             @PathVariable("id") String id,
             @RequestBody List<JsonPatchOperation> changes

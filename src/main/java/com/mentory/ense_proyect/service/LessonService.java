@@ -2,7 +2,9 @@ package com.mentory.ense_proyect.service;
 
 import com.mentory.ense_proyect.exception.*;
 import com.mentory.ense_proyect.model.dto.LessonDTO;
+import com.mentory.ense_proyect.model.entity.Ability;
 import com.mentory.ense_proyect.model.entity.Lesson;
+import com.mentory.ense_proyect.repository.AbilityRepository;
 import com.mentory.ense_proyect.repository.LessonRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +27,13 @@ import java.util.*;
 @Service
 public class LessonService {
     private final LessonRepository lessonRepository;
+    private final AbilityRepository abilityRepository;
     private final ObjectMapper mapper;
 
     @Autowired
-    public LessonService(LessonRepository leccionRepository, ObjectMapper mapper) {
+    public LessonService(LessonRepository leccionRepository, AbilityRepository abilityRepository, ObjectMapper mapper) {
         this.lessonRepository = leccionRepository;
+        this.abilityRepository = abilityRepository;
         this.mapper=mapper;
     }
 
@@ -45,11 +49,26 @@ public class LessonService {
     /**
      * Crea una lección a partir de un DTO y el ID del propietario.
      * Genera un ID único para la lección.
+     * Valida que se incluya al menos una habilidad.
      */
-    public Lesson createLesson(LessonDTO dto, String ownerId) throws DuplicatedLessonException {
+    public Lesson createLesson(LessonDTO dto, String ownerId) throws DuplicatedLessonException, IllegalArgumentException {
+        // Validar que se incluya al menos una habilidad
+        if (dto.abilities() == null || dto.abilities().isEmpty()) {
+            throw new IllegalArgumentException("A lesson must have at least one ability");
+        }
+        
+        // Buscar las habilidades existentes
+        Set<Ability> abilities = new HashSet<>();
+        for (String abilityName : dto.abilities()) {
+            Ability ability = abilityRepository.findById(abilityName)
+                .orElseThrow(() -> new IllegalArgumentException("Ability not found: " + abilityName));
+            abilities.add(ability);
+        }
+        
         Lesson lesson = new Lesson(ownerId, dto.name(), dto.description());
-        // Generar ID único
         lesson.setId(UUID.randomUUID().toString());
+        lesson.setHabilidad(abilities);
+        
         return lessonRepository.save(lesson);
     }
 
@@ -63,7 +82,8 @@ public class LessonService {
     }
 
     public Lesson getLesson(String id) throws LessonNotFoundException {
-        return lessonRepository.findById(id).orElseThrow(() -> new LessonNotFoundException(id));
+        return lessonRepository.findByIdWithModulesAndAbilities(id)
+            .orElseThrow(() -> new LessonNotFoundException(id));
     }
 
     public Lesson updateLesson(String id, List<JsonPatchOperation> changes) throws LessonNotFoundException, JsonPatchException {

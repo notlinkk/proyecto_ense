@@ -25,6 +25,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import com.github.fge.jsonpatch.JsonPatchException;
 import com.github.fge.jsonpatch.JsonPatchOperation;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import java.util.List;
 import java.util.Set;
 
@@ -43,10 +45,12 @@ public class LessonController {
     }
 
     @GetMapping(path="{id}", version = "0")
+    @PreAuthorize("hasAuthority('lessons:read')")
     public ResponseEntity <Lesson> getLessonV0(@PathVariable("id") String id) throws LessonNotFoundException {
         return ResponseEntity.ok(lessonService.getLesson(id));
     }
     @GetMapping(path="{id}", version = "1")
+    @PreAuthorize("hasAuthority('lessons:read')")
     public ResponseEntity <EntityModel<Lesson>> getLessonV1(@PathVariable("id") String id) throws LessonNotFoundException {
         EntityModel<Lesson> lesson = EntityModel.of(lessonService.getLesson(id));
         lesson.add(
@@ -58,6 +62,7 @@ public class LessonController {
     }
 
     @GetMapping ( version = "0")
+    @PreAuthorize("hasAuthority('lessons:read')")
     public ResponseEntity<Page<Lesson>> getLessonsV0(
             @RequestParam(value="nombre", required=false) String nombre,
             @RequestParam(value="page", required=false, defaultValue="0") int page,
@@ -81,6 +86,7 @@ public class LessonController {
     }
 
     @GetMapping(version = "1")
+    @PreAuthorize("hasAuthority('lessons:read')")
     public ResponseEntity<PagedModel<Lesson>> getLessonsV1(
             @RequestParam(value="nombre", required=false) String nombre,
             @RequestParam(value="page", required=false, defaultValue="0") int page,
@@ -139,6 +145,7 @@ public class LessonController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('lessons:write')")
     public ResponseEntity<Lesson> createLesson(@RequestBody LessonDTO lessonDTO, Authentication authentication) throws DuplicatedLessonException {
         String ownerId = authentication.getName();
         Lesson newLesson = lessonService.createLesson(lessonDTO, ownerId);
@@ -151,12 +158,14 @@ public class LessonController {
     }
 
     @DeleteMapping({"{id}"})
+    @PreAuthorize("hasAuthority('lessons:delete')")
     public ResponseEntity<Void> deleteLesson(@PathVariable("id") String id) throws LessonNotFoundException {
         lessonService.deleteLesson(id);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("{id}" )
+    @PreAuthorize("hasAuthority('lessons:update')")
     public ResponseEntity<Lesson> updateLesson(
             @PathVariable("id") String id,
             @RequestBody List<JsonPatchOperation> changes

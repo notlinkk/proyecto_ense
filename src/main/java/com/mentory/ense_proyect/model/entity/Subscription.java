@@ -33,9 +33,6 @@ public class Subscription {
     private String endDate;     // Fecha de fin de la suscripción
     
     @JsonView(OwnView.class)
-    private double prize;       // Precio de la suscripción
-    
-    @JsonView(OwnView.class)
     private boolean active;     // Estado de la suscripción
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -53,10 +50,9 @@ public class Subscription {
     }
 
     // Constructor
-    public Subscription(String startDate, String endDate, double prize, boolean active, User buyer, Lesson lesson) {
+    public Subscription(String startDate, String endDate, boolean active, User buyer, Lesson lesson) {
         this.startDate = startDate;
         this.endDate = endDate;
-        this.prize = prize;
         this.active = active;
         this.buyer = buyer;
         this.lesson = lesson;
@@ -92,14 +88,6 @@ public class Subscription {
 
     public void setActive(boolean activa) {
         this.active = activa;
-    }
-
-    public double getPrize() {
-        return prize;
-    }
-
-    public void setPrize(double precio) {
-        this.prize = precio;
     }
 
     public User getBuyer() {

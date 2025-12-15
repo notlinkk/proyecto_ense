@@ -24,6 +24,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import com.github.fge.jsonpatch.JsonPatchOperation;
 import com.github.fge.jsonpatch.JsonPatchException;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import java.util.*;
 
 
@@ -41,11 +43,13 @@ public class ModuleController {
     }
 
     @GetMapping(path="{id}", version = "0")
+    @PreAuthorize("hasAuthority('modules:read')")
     public ResponseEntity<Module> getModuloV0(@PathVariable("id") String id) throws ModuleNotFoundException {
         return ResponseEntity.ok(moduleService.getModule(id));
     }
 
     @GetMapping(path="{id}", version = "1")
+    @PreAuthorize("hasAuthority('modules:read')")
     public ResponseEntity<EntityModel<Module>> getModuleV1(@PathVariable("id") String id) throws ModuleNotFoundException {
         EntityModel<Module> module = EntityModel.of(moduleService.getModule(id));
         module.add(
@@ -57,6 +61,7 @@ public class ModuleController {
     }
 
     @GetMapping( version = "0")
+    @PreAuthorize("hasAuthority('modules:read')")
     public ResponseEntity<Page<Module>> getModulesV0(
             @RequestParam(value="nombre", required=false) String nombre,
             @RequestParam(value="page", required=false, defaultValue="0") int page,
@@ -83,6 +88,7 @@ public class ModuleController {
     }
 
     @GetMapping(version = "1")
+    @PreAuthorize("hasAuthority('modules:read')")
     public ResponseEntity<PagedModel<Module>> getModulesV1(
             @RequestParam(value="nombre", required=false) String nombre,
             @RequestParam(value="page", required=false, defaultValue="0") int page,
@@ -140,6 +146,7 @@ public class ModuleController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('modules:write')")
     public ResponseEntity<Module> createModule(@RequestBody ModuleDTO moduleDTO) throws LessonNotFoundException {
         Module newModule = moduleService.createModule(moduleDTO);
         return ResponseEntity
@@ -151,12 +158,14 @@ public class ModuleController {
     }
 
     @DeleteMapping("{id}")
+    @PreAuthorize("hasAuthority('modules:delete')")
     public ResponseEntity<Void> deleteModule(@PathVariable("id") String id) throws ModuleNotFoundException {
         moduleService.deleteModule(id);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("{id}")
+    @PreAuthorize("hasAuthority('modules:update')")
     public ResponseEntity<Module> updateModule(
             @PathVariable("id") String id,
             @RequestBody List<JsonPatchOperation> changes

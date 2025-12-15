@@ -32,10 +32,26 @@
   color: var(--color-text-secondary);
 }
 
+/* Hero Image */
+.lesson-hero-image {
+  width: 100%;
+  height: 300px;
+  margin-bottom: var(--spacing-xl);
+  border-radius: var(--border-radius-xl);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+
+.lesson-hero-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 /* Header de la lección */
 .lesson-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   padding: var(--spacing-2xl);
   border-radius: var(--border-radius-xl);
   margin-bottom: var(--spacing-xl);
@@ -52,11 +68,12 @@
   font-size: 2rem;
   font-weight: 700;
   margin: 0 0 var(--spacing-md) 0;
+  color: var(--color-text-primary);
 }
 
 .lesson-header .lesson-description {
-  opacity: 0.9;
-  font-size: 1.125rem;
+  color: var(--color-text-secondary);
+  font-size: 1rem;
   line-height: 1.6;
   margin: 0 0 var(--spacing-lg) 0;
 }
@@ -69,14 +86,15 @@
 }
 
 .owner-badge {
-  background: rgba(255, 215, 0, 0.3);
+  background: rgba(139, 92, 246, 0.2);
+  color: var(--color-primary-light);
   padding: 0.25rem 0.75rem;
   border-radius: var(--border-radius-md);
 }
 
 .subscribe-button {
-  background: white;
-  color: #667eea;
+  background: var(--color-primary);
+  color: white;
   border: none;
   padding: 0.75rem 1.5rem;
   border-radius: var(--border-radius-md);
@@ -88,8 +106,7 @@
 }
 
 .subscribe-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  background: var(--color-primary-dark);
 }
 
 .subscribe-button:disabled {
@@ -98,7 +115,8 @@
 }
 
 .subscribed-badge {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(74, 222, 128, 0.2);
+  color: var(--color-success);
   padding: 0.5rem 1rem;
   border-radius: var(--border-radius-md);
   font-weight: 500;
@@ -109,7 +127,7 @@
   align-items: center;
   gap: var(--spacing-sm);
   font-size: 0.875rem;
-  opacity: 0.9;
+  color: var(--color-text-secondary);
 }
 
 /* Habilidades */
@@ -127,7 +145,8 @@
 }
 
 .ability-badge {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(139, 92, 246, 0.15);
+  color: var(--color-primary-light);
   padding: var(--spacing-xs) var(--spacing-md);
   border-radius: var(--border-radius-md);
   font-size: 0.875rem;
@@ -159,7 +178,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.6rem 1.2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-primary);
   color: white;
   border: none;
   border-radius: var(--border-radius-md);
@@ -170,8 +189,7 @@
 }
 
 .add-module-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  background: var(--color-primary-dark);
 }
 
 .modules-list {
@@ -194,7 +212,7 @@
   align-items: center;
   gap: var(--spacing-lg);
   padding: var(--spacing-xl) 0;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--color-border);
 }
 
 .start-button {
@@ -225,7 +243,8 @@
 
 /* Locked content section */
 .locked-section {
-  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--border-radius-xl);
   padding: var(--spacing-2xl);
 }
@@ -235,38 +254,31 @@
   padding: var(--spacing-2xl);
 }
 
-.lock-icon {
-  font-size: 4rem;
-  display: block;
-  margin-bottom: var(--spacing-lg);
-}
-
 .locked-content h2 {
-  color: #4b5563;
+  color: var(--color-text-primary);
   margin-bottom: var(--spacing-md);
 }
 
 .locked-content p {
-  color: #6b7280;
+  color: var(--color-text-secondary);
   margin-bottom: var(--spacing-xl);
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
 .subscribe-button-large {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-primary);
   color: white;
   border: none;
   padding: 1rem 2rem;
   border-radius: var(--border-radius-md);
   font-weight: 600;
-  font-size: 1.1rem;
+  font-size: 1rem;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .subscribe-button-large:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  background: var(--color-primary-dark);
 }
 
 .subscribe-button-large:disabled {

@@ -22,6 +22,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import com.github.fge.jsonpatch.JsonPatchOperation;
 import com.github.fge.jsonpatch.JsonPatchException;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import java.util.*;
 
 @RestController
@@ -38,11 +40,13 @@ public class AbilityController {
     }
 
     @GetMapping(path="{id}", version = "0")
+    @PreAuthorize("hasAuthority('abilities:read')")
     public ResponseEntity <Ability> getAbilityV0(@PathVariable("id") String id) throws AbilityNotFoundException {
         return ResponseEntity.ok(abilityService.getAbility(id));
     }
 
     @GetMapping(path="{id}", version = "1")
+    @PreAuthorize("hasAuthority('abilities:read')")
     public ResponseEntity <EntityModel<Ability>> getAbilityV1(@PathVariable("id") String id) throws AbilityNotFoundException {
         EntityModel<Ability> ability = EntityModel.of(abilityService.getAbility(id));
                 ability.add(
@@ -54,6 +58,7 @@ public class AbilityController {
     }
 
     @GetMapping(version = "0")
+    @PreAuthorize("hasAuthority('abilities:read')")
     public ResponseEntity<Page<Ability>> getAbilitiesV0(
             @RequestParam(value="nombre", required=false) String nombre,
             @RequestParam(value="page", required=false, defaultValue="0") int page,
@@ -80,6 +85,7 @@ public class AbilityController {
     }
 
     @GetMapping(version = "1")
+    @PreAuthorize("hasAuthority('abilities:read')")
     public ResponseEntity<PagedModel<Ability>> getAbilitiesV1(
             @RequestParam(value="nombre", required=false) String nombre,
             @RequestParam(value="page", required=false, defaultValue="0") int page,
@@ -137,6 +143,7 @@ public class AbilityController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('abilities:write')")
     public ResponseEntity<Ability> createAbility(@RequestBody Ability Ability) throws DuplicatedAbilityException {
             Ability nuevaAbility = abilityService.addAbility(Ability);
             return ResponseEntity
@@ -148,12 +155,14 @@ public class AbilityController {
     }
 
     @DeleteMapping({"{id}"})
+    @PreAuthorize("hasAuthority('abilities:delete')")
     public ResponseEntity<Void> deleteAbility(@PathVariable("id") String id) throws AbilityNotFoundException {
         abilityService.deleteAbility(id);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("{id}")
+    @PreAuthorize("hasAuthority('abilities:update')")
     public ResponseEntity<Ability> updateAbility(
             @PathVariable("id") String id,
             @RequestBody List<JsonPatchOperation> changes

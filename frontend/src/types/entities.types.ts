@@ -33,8 +33,17 @@ export interface Lesson {
   name: string;
   description: string;
   ownerId: string;
+  price?: number;
+  imageUrl?: string;
   modules?: Module[];
   abilities?: Ability[];
+}
+
+/**
+ * Representa un rol del sistema.
+ */
+export interface Role {
+  rolename: string;
 }
 
 /**
@@ -47,6 +56,7 @@ export interface User {
   surname2?: string;
   email: string;
   lessons?: Lesson[];
+  roles?: Role[];
 }
 
 /**
@@ -68,10 +78,13 @@ export interface PageResponse<T> {
 /**
  * DTO para crear una nueva lección.
  * Solo contiene los atributos simples necesarios.
+ * Debe incluir al menos una habilidad.
  */
 export interface CreateLessonDTO {
   name: string;
   description: string;
+  imageUrl?: string;
+  abilities: string[];  // Nombres de las habilidades
 }
 
 /**
@@ -94,7 +107,6 @@ export interface Subscription {
   id: string;
   startDate: string;
   endDate?: string;
-  prize: number;
   active: boolean;
   lesson?: Lesson;
 }
