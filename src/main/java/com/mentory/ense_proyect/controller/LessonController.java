@@ -44,26 +44,26 @@ public class LessonController {
         this.entityLinks = entityLinks;
     }
 
-    @GetMapping(path="{id}", version = "0")
+    @GetMapping(path="{id}", headers = "API-Version=0")
     @PreAuthorize("hasAuthority('lessons:read')")
     public ResponseEntity <Lesson> getLessonV0(@PathVariable("id") String id, Authentication authentication) throws LessonNotFoundException {
         String username = authentication.getName();
         return ResponseEntity.ok(lessonService.getLessonWithAccessControl(id, username));
     }
-    @GetMapping(path="{id}", version = "1")
+    @GetMapping(path="{id}", headers = "API-Version=1")
     @PreAuthorize("hasAuthority('lessons:read')")
     public ResponseEntity <EntityModel<Lesson>> getLessonV1(@PathVariable("id") String id, Authentication authentication) throws LessonNotFoundException {
         String username = authentication.getName();
         EntityModel<Lesson> lesson = EntityModel.of(lessonService.getLessonWithAccessControl(id, username));
         lesson.add(
-            entityLinks.linkToItemResource(Lesson.class, lesson).withSelfRel(),
+            entityLinks.linkToItemResource(Lesson.class, lesson.getContent().getId()).withSelfRel(),
             entityLinks.linkToCollectionResource(Lesson.class).withRel(IanaLinkRelations.COLLECTION),
-            entityLinks.linkToItemResource(Lesson.class, lesson).withRel("delete").withType("DELETE")
+            entityLinks.linkToItemResource(Lesson.class, lesson.getContent().getId()).withRel("delete").withType("DELETE")
         );
         return ResponseEntity.ok(lesson);
     }
 
-    @GetMapping ( version = "0")
+    @GetMapping ( headers = "API-Version=0")
     @PreAuthorize("hasAuthority('lessons:read')")
     public ResponseEntity<Page<Lesson>> getLessonsV0(
             @RequestParam(value="nombre", required=false) String nombre,
@@ -90,7 +90,7 @@ public class LessonController {
         return ResponseEntity.ok(lessons);
     }
 
-    @GetMapping(version = "1")
+    @GetMapping(headers = "API-Version=1")
     @PreAuthorize("hasAuthority('lessons:read')")
     public ResponseEntity<PagedModel<Lesson>> getLessonsV1(
             @RequestParam(value="nombre", required=false) String nombre,

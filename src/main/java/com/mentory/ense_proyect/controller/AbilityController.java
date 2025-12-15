@@ -39,25 +39,25 @@ public class AbilityController {
         this.entityLinks = entityLinks;
     }
 
-    @GetMapping(path="{id}", version = "0")
+        @GetMapping(path="{id}", headers = "API-Version=0")
     @PreAuthorize("hasAuthority('abilities:read')")
     public ResponseEntity <Ability> getAbilityV0(@PathVariable("id") String id) throws AbilityNotFoundException {
         return ResponseEntity.ok(abilityService.getAbility(id));
     }
 
-    @GetMapping(path="{id}", version = "1")
+        @GetMapping(path="{id}", headers = "API-Version=1")
     @PreAuthorize("hasAuthority('abilities:read')")
     public ResponseEntity <EntityModel<Ability>> getAbilityV1(@PathVariable("id") String id) throws AbilityNotFoundException {
         EntityModel<Ability> ability = EntityModel.of(abilityService.getAbility(id));
-                ability.add(
-                entityLinks.linkToItemResource(Ability.class, ability).withSelfRel(),
+        ability.add(
+                entityLinks.linkToItemResource(Ability.class, ability.getContent().getName()).withSelfRel(),
                 entityLinks.linkToCollectionResource(Ability.class).withRel(IanaLinkRelations.COLLECTION),
-                entityLinks.linkToItemResource(Ability.class, ability).withRel("delete").withType("DELETE")
-                );
+                entityLinks.linkToItemResource(Ability.class, ability.getContent().getName()).withRel("delete").withType("DELETE")
+        );
         return ResponseEntity.ok(ability);
     }
 
-    @GetMapping(version = "0")
+    @GetMapping(headers = "API-Version=0")
     @PreAuthorize("hasAuthority('abilities:read')")
     public ResponseEntity<Page<Ability>> getAbilitiesV0(
             @RequestParam(value="nombre", required=false) String nombre,
@@ -84,7 +84,7 @@ public class AbilityController {
         return ResponseEntity.ok(abilities);
     }
 
-    @GetMapping(version = "1")
+        @GetMapping(headers = "API-Version=1")
     @PreAuthorize("hasAuthority('abilities:read')")
     public ResponseEntity<PagedModel<Ability>> getAbilitiesV1(
             @RequestParam(value="nombre", required=false) String nombre,
@@ -148,7 +148,7 @@ public class AbilityController {
             Ability nuevaAbility = abilityService.addAbility(Ability);
             return ResponseEntity
                     .created(MvcUriComponentsBuilder
-                            .fromMethodName(AbilityController.class, "getAbility", Ability.getName())
+                            .fromMethodName(AbilityController.class, "getAbilityV1", nuevaAbility.getName())
                             .build()
                             .toUri())
                     .body(nuevaAbility);

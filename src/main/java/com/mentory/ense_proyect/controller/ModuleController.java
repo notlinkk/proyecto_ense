@@ -43,27 +43,27 @@ public class ModuleController {
         this.entityLinks = entityLinks;
     }
 
-    @GetMapping(path="{id}", version = "0")
+    @GetMapping(path="{id}", headers = "API-Version=0")
     @PreAuthorize("hasAuthority('modules:read')")
     public ResponseEntity<Module> getModuloV0(@PathVariable("id") String id, Authentication authentication) throws ModuleNotFoundException {
         String username = authentication.getName();
         return ResponseEntity.ok(moduleService.getModuleWithAccessControl(id, username));
     }
 
-    @GetMapping(path="{id}", version = "1")
+    @GetMapping(path="{id}", headers = "API-Version=1")
     @PreAuthorize("hasAuthority('modules:read')")
     public ResponseEntity<EntityModel<Module>> getModuleV1(@PathVariable("id") String id, Authentication authentication) throws ModuleNotFoundException {
         String username = authentication.getName();
         EntityModel<Module> module = EntityModel.of(moduleService.getModuleWithAccessControl(id, username));
         module.add(
-            entityLinks.linkToItemResource(Module.class, module).withSelfRel(),
+            entityLinks.linkToItemResource(Module.class, module.getContent().getId()).withSelfRel(),
             entityLinks.linkToCollectionResource(Module.class).withRel(IanaLinkRelations.COLLECTION),
-            entityLinks.linkToItemResource(Module.class, module).withRel("delete").withType("DELETE")
+            entityLinks.linkToItemResource(Module.class, module.getContent().getId()).withRel("delete").withType("DELETE")
         );
         return ResponseEntity.ok(module);
     }
 
-    @GetMapping( version = "0")
+    @GetMapping( headers = "API-Version=0")
     @PreAuthorize("hasAuthority('modules:read')")
     public ResponseEntity<Page<Module>> getModulesV0(
             @RequestParam(value="nombre", required=false) String nombre,
@@ -85,7 +85,7 @@ public class ModuleController {
         return ResponseEntity.ok(modules);
     }
 
-    @GetMapping(version = "1")
+    @GetMapping(headers = "API-Version=1")
     @PreAuthorize("hasAuthority('modules:read')")
     public ResponseEntity<PagedModel<Module>> getModulesV1(
             @RequestParam(value="nombre", required=false) String nombre,

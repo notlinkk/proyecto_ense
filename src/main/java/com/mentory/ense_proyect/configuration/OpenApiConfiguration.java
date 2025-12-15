@@ -8,9 +8,12 @@ import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
+import io.swagger.v3.oas.models.parameters.Parameter;
+import io.swagger.v3.oas.models.media.StringSchema;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springdoc.core.customizers.OpenApiCustomizer;
 
 import java.util.List;
 
@@ -37,5 +40,27 @@ public class OpenApiConfiguration {
                         .type(SecurityScheme.Type.HTTP)
                         .scheme("bearer")
                         .bearerFormat("JWT")));
+    }
+
+    @Bean
+    public OpenApiCustomizer addApiVersionHeaderGlobally() {
+        return openApi -> {
+            Parameter apiVersionHeader = new Parameter()
+                    .in("header")
+                    .name("API-Version")
+                    .description("API version header. Default = 1.")
+                    .schema(new StringSchema()._default("1"));
+
+            openApi.getPaths().values().forEach(pathItem ->
+                pathItem.readOperations().forEach(operation -> {
+                    // Avoid duplicating if already present
+                    boolean present = operation.getParameters() != null && operation.getParameters().stream()
+                            .anyMatch(p -> "header".equalsIgnoreCase(p.getIn()) && "API-Version".equalsIgnoreCase(p.getName()));
+                    if (!present) {
+                        operation.addParametersItem(apiVersionHeader);
+                    }
+                })
+            );
+        };
     }
 }

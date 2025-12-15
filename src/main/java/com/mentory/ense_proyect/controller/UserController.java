@@ -132,26 +132,26 @@ public class UserController {
         return ResponseEntity.ok(updatedUser);
     }
 
-    @GetMapping(path = "{id}", version = "0")
+    @GetMapping(path = "{id}", headers = "API-Version=0")
     @PreAuthorize("hasAuthority('users:read')")
     public ResponseEntity <User> getUserV0(@PathVariable("id") String id) throws UserNotFoundException {
         return ResponseEntity.ok(userService.getUser(id));
     }
 
-    @GetMapping(path = "{id}", version = "1")
+    @GetMapping(path = "{id}", headers = "API-Version=1")
     @PreAuthorize("hasAuthority('users:read')")
     public ResponseEntity <EntityModel<User>> getUserV1(@PathVariable("id") String id) throws UserNotFoundException {
 
         EntityModel<User> user = EntityModel.of(userService.getUser(id));
         user.add(
-            entityLinks.linkToItemResource(User.class, user).withSelfRel(),
+            entityLinks.linkToItemResource(User.class, user.getContent().getUsername()).withSelfRel(),
             entityLinks.linkToCollectionResource(User.class).withRel(IanaLinkRelations.COLLECTION),
-            entityLinks.linkToItemResource(User.class, user).withRel("delete").withType("DELETE")
+            entityLinks.linkToItemResource(User.class, user.getContent().getUsername()).withRel("delete").withType("DELETE")
         );
         return ResponseEntity.ok(user);
     }
 
-    @GetMapping( version = "0")
+    @GetMapping( headers = "API-Version=0")
     @PreAuthorize("hasAuthority('users:read')")
     public ResponseEntity<Page<User>> getUsersV0(
             @RequestParam(value="nombre", required=false) String nombre,
@@ -178,7 +178,7 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
     
-    @GetMapping(version = "1")
+    @GetMapping(headers = "API-Version=1")
     @PreAuthorize("hasAuthority('users:read')")
     public ResponseEntity<PagedModel<User>> getUsersV1(
         @RequestParam(value="nombre", required=false) String nombre,
@@ -245,11 +245,11 @@ public class UserController {
     public ResponseEntity<User> createUser(@RequestBody User users) throws DuplicatedUserException {
         User newUser = userService.create(users);
         return ResponseEntity
-                .created(MvcUriComponentsBuilder
-                        .fromMethodName(UserController.class, "getUser", users.getUsername())
-                        .build()
-                        .toUri())
-                .body(newUser);
+            .created(MvcUriComponentsBuilder
+                .fromMethodName(UserController.class, "getUserV1", newUser.getUsername())
+                .build()
+                .toUri())
+            .body(newUser);
     }
 
     @DeleteMapping({"{id}"})

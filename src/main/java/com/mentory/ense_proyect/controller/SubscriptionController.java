@@ -45,26 +45,26 @@ public class SubscriptionController {
         this.entityLinks = entityLinks;
     }
 
-    @GetMapping(path="{id}", version = "0")
+    @GetMapping(path="{id}", headers = "API-Version=0")
     @PreAuthorize("hasAuthority('subscriptions:read')")
     public ResponseEntity<Subscription> getSubscriptionV0(@PathVariable("id") String id, Authentication authentication) throws SubscriptionNotFoundException{
         String username = authentication.getName();
         return ResponseEntity.ok(subscriptionService.getSubscriptionWithAccessControl(id, username));
     }
-    @GetMapping(path="{id}", version = "1")
+    @GetMapping(path="{id}", headers = "API-Version=1")
     @PreAuthorize("hasAuthority('subscriptions:read')")
     public ResponseEntity<EntityModel<Subscription>> getSubscriptionV1(@PathVariable("id") String id, Authentication authentication) throws SubscriptionNotFoundException{
         String username = authentication.getName();
         EntityModel<Subscription> subscription = EntityModel.of(subscriptionService.getSubscriptionWithAccessControl(id, username));
         subscription.add(
-            entityLinks.linkToItemResource(Subscription.class, subscription).withSelfRel(),
+            entityLinks.linkToItemResource(Subscription.class, subscription.getContent().getId()).withSelfRel(),
             entityLinks.linkToCollectionResource(Subscription.class).withRel(IanaLinkRelations.COLLECTION),
-            entityLinks.linkToItemResource(Subscription.class, subscription).withRel("delete").withType("DELETE")
+            entityLinks.linkToItemResource(Subscription.class, subscription.getContent().getId()).withRel("delete").withType("DELETE")
         );
         return ResponseEntity.ok(subscription);
     }
 
-    @GetMapping(version = "0")
+    @GetMapping(headers = "API-Version=0")
     @PreAuthorize("hasAuthority('subscriptions:read')")
     public ResponseEntity<Page<Subscription>> getSubscriptionsV0(
             @RequestParam(value="page", required=false, defaultValue="0") int page,
@@ -85,7 +85,7 @@ public class SubscriptionController {
         return ResponseEntity.ok(subscriptions);
     }
 
-    @GetMapping(version = "1")
+    @GetMapping(headers = "API-Version=1")
     @PreAuthorize("hasAuthority('subscriptions:read')")
     public ResponseEntity<PagedModel<Subscription>> getSubscriptionsV1(
             @RequestParam(value="page", required=false, defaultValue="0") int page,
