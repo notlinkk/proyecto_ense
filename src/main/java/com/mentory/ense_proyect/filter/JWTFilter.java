@@ -32,18 +32,28 @@ public class JWTFilter extends OncePerRequestFilter{
         @NonNull HttpServletRequest request,
         @NonNull HttpServletResponse response,
         @NonNull FilterChain chain
-    ) throws ServletException, IOException, JwtException {
+    ) throws ServletException, IOException {
         String token = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        if (token == null || !token.startsWith("Bearer")) {
+        if (token == null || !token.startsWith("Bearer ")) {
             chain.doFilter(request, response);
             return;
         }
 
-        Authentication authentication = authenticationService.parseJWT(
-            token.replaceFirst("^Bearer ", "")
-        );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        try {
+            String jwt = token.substring(7); // Quitar "Bearer " (7 caracteres)
+            if (jwt.isEmpty() || !jwt.contains(".")) {
+                // Token inválido, continuar sin autenticación
+                chain.doFilter(request, response);
+                return;
+            }
+            
+            Authentication authentication = authenticationService.parseJWT(jwt);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        } catch (JwtException e) {
+            // Token malformado o expirado, continuar sin autenticación
+            // El endpoint decidirá si requiere autenticación o no
+        }
 
         chain.doFilter(request, response);
     }

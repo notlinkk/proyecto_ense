@@ -6,6 +6,7 @@ import com.mentory.ense_proyect.model.entity.Lesson;
 import com.mentory.ense_proyect.model.entity.Module;
 import com.mentory.ense_proyect.repository.LessonRepository;
 import com.mentory.ense_proyect.repository.ModuleRepository;
+import com.mentory.ense_proyect.repository.SubscriptionRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -28,13 +29,33 @@ import java.util.*;
 public class ModuleService {
     private final ModuleRepository moduleRepository;
     private final LessonRepository lessonRepository;
+    private final SubscriptionRepository subscriptionRepository;
     private final ObjectMapper mapper;
 
     @Autowired
-    public ModuleService(ModuleRepository moduleRepository, LessonRepository lessonRepository, ObjectMapper mapper) {
-        this.moduleRepository=moduleRepository;
-        this.lessonRepository=lessonRepository;
-        this.mapper=mapper;
+    public ModuleService(ModuleRepository moduleRepository, LessonRepository lessonRepository, 
+                         SubscriptionRepository subscriptionRepository, ObjectMapper mapper) {
+        this.moduleRepository = moduleRepository;
+        this.lessonRepository = lessonRepository;
+        this.subscriptionRepository = subscriptionRepository;
+        this.mapper = mapper;
+    }
+
+    /**
+     * Check if user can access a module.
+     * User can access if: is owner of the lesson, has active subscription, or is the lesson owner.
+     */
+    public boolean canAccessModule(String username, Module module) {
+        Lesson lesson = module.getLesson();
+        if (lesson == null) {
+            return false;
+        }
+        // Owner can always access
+        if (lesson.getOwnerId().equals(username)) {
+            return true;
+        }
+        // Check for active subscription
+        return subscriptionRepository.findByBuyerUsernameAndLessonIdAndActiveTrue(username, lesson.getId()).isPresent();
     }
 
     // CRUD
@@ -65,8 +86,31 @@ public class ModuleService {
         return moduleRepository.findAll(example, page);
     }
 
+    /**
+     * Get modules that the user has access to (owns or subscribed to the lesson).
+     */
+    public Page<@NonNull Module> getModulesWithAccessControl(@Nullable String name, String username, PageRequest page) {
+        // Get all modules the user has access to through subscriptions or ownership
+        return moduleRepository.findAccessibleModules(username, page);
+    }
+
     public Module getModule(String id) throws ModuleNotFoundException {
         return moduleRepository.findById(id).orElseThrow(() -> new ModuleNotFoundException(id));
+    }
+
+    /**
+     * Get a module with access control.
+     * Throws AccessDeniedException if user doesn't have access.
+     */
+    public Module getModuleWithAccessControl(String id, String username) throws ModuleNotFoundException {
+        Module module = moduleRepository.findByIdWithLesson(id)
+            .orElseThrow(() -> new ModuleNotFoundException(id));
+        
+        if (!canAccessModule(username, module)) {
+            throw new com.mentory.ense_proyect.exception.AccessDeniedException("module", id);
+        }
+        
+        return module;
     }
 
     public Module updateModule(String name, List<JsonPatchOperation> changes) throws ModuleNotFoundException, JsonPatchException {

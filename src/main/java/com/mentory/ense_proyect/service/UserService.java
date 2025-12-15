@@ -4,6 +4,7 @@ import com.mentory.ense_proyect.exception.UserNotFoundException;
 import com.mentory.ense_proyect.model.entity.Role;
 import com.mentory.ense_proyect.model.entity.User;
 import com.mentory.ense_proyect.exception.DuplicatedUserException;
+import com.mentory.ense_proyect.repository.LessonRepository;
 import com.mentory.ense_proyect.repository.RoleRepository;
 import com.mentory.ense_proyect.repository.UserRepository;
 
@@ -32,14 +33,17 @@ import java.util.*;
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final LessonRepository lessonRepository;
     private final PasswordEncoder passwordEncoder;
     private final ObjectMapper mapper;
 
 
     @Autowired  
-    public UserService (UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, ObjectMapper mapper) {
+    public UserService (UserRepository userRepository, RoleRepository roleRepository, 
+                        LessonRepository lessonRepository, PasswordEncoder passwordEncoder, ObjectMapper mapper) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.lessonRepository = lessonRepository;
         this.passwordEncoder = passwordEncoder;
         this.mapper = mapper;
     }
@@ -84,21 +88,13 @@ public class UserService implements UserDetailsService {
 
     /**
      * Obtiene las lecciones creadas por un usuario con paginación.
+     * Busca por ownerId en lugar de usar la relación many-to-many.
      */
     public Page<com.mentory.ense_proyect.model.entity.Lesson> getUserLessons(String username, PageRequest page) throws UserNotFoundException {
-        User user = userRepository.findById(username).orElseThrow(() -> new UserNotFoundException(username));
-        List<com.mentory.ense_proyect.model.entity.Lesson> lessonsList = user.getLessons() != null 
-            ? new ArrayList<>(user.getLessons()) 
-            : new ArrayList<>();
-        
-        int start = (int) page.getOffset();
-        int end = Math.min(start + page.getPageSize(), lessonsList.size());
-        
-        List<com.mentory.ense_proyect.model.entity.Lesson> pageContent = start < lessonsList.size() 
-            ? lessonsList.subList(start, end) 
-            : new ArrayList<>();
-            
-        return new org.springframework.data.domain.PageImpl<>(pageContent, page, lessonsList.size());
+        if (!userRepository.existsById(username)) {
+            throw new UserNotFoundException(username);
+        }
+        return lessonRepository.findByOwnerId(username, page);
     }
 
     public void deleteUser(String id) throws UserNotFoundException {

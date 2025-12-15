@@ -4,8 +4,11 @@ import com.mentory.ense_proyect.exception.*;
 import com.mentory.ense_proyect.model.dto.LessonDTO;
 import com.mentory.ense_proyect.model.entity.Ability;
 import com.mentory.ense_proyect.model.entity.Lesson;
+import com.mentory.ense_proyect.model.entity.User;
 import com.mentory.ense_proyect.repository.AbilityRepository;
 import com.mentory.ense_proyect.repository.LessonRepository;
+import com.mentory.ense_proyect.repository.SubscriptionRepository;
+import com.mentory.ense_proyect.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -28,13 +31,32 @@ import java.util.*;
 public class LessonService {
     private final LessonRepository lessonRepository;
     private final AbilityRepository abilityRepository;
+    private final UserRepository userRepository;
+    private final SubscriptionRepository subscriptionRepository;
     private final ObjectMapper mapper;
 
     @Autowired
-    public LessonService(LessonRepository leccionRepository, AbilityRepository abilityRepository, ObjectMapper mapper) {
+    public LessonService(LessonRepository leccionRepository, AbilityRepository abilityRepository, 
+                         UserRepository userRepository, SubscriptionRepository subscriptionRepository,
+                         ObjectMapper mapper) {
         this.lessonRepository = leccionRepository;
         this.abilityRepository = abilityRepository;
-        this.mapper=mapper;
+        this.userRepository = userRepository;
+        this.subscriptionRepository = subscriptionRepository;
+        this.mapper = mapper;
+    }
+
+    /**
+     * Check if user can access lesson content (modules).
+     * User can access if: is owner, has active subscription, or is ADMIN.
+     */
+    public boolean canAccessLessonContent(String username, Lesson lesson) {
+        // Owner can always access
+        if (lesson.getOwnerId().equals(username)) {
+            return true;
+        }
+        // Check for active subscription
+        return subscriptionRepository.findByBuyerUsernameAndLessonIdAndActiveTrue(username, lesson.getId()).isPresent();
     }
 
     // CRUD
@@ -72,18 +94,68 @@ public class LessonService {
         return lessonRepository.save(lesson);
     }
 
-    public Page<@NonNull Lesson> getLessons(@Nullable String name, PageRequest page) {
-        if (name == null || name.isBlank()) {
-            // Return all lessons if no name filter
-            return lessonRepository.findAll(page);
+    public Page<@NonNull Lesson> getLessons(@Nullable String name, @Nullable String currentUserId, PageRequest page) {
+        Page<Lesson> lessons;
+        
+        if (currentUserId == null || currentUserId.isBlank()) {
+            // No user context - return all lessons
+            if (name == null || name.isBlank()) {
+                lessons = lessonRepository.findAll(page);
+            } else {
+                lessons = lessonRepository.findByNameContainingIgnoreCase(name, page);
+            }
+        } else {
+            // Exclude lessons owned by the current user
+            if (name == null || name.isBlank()) {
+                lessons = lessonRepository.findByOwnerIdNot(currentUserId, page);
+            } else {
+                lessons = lessonRepository.findByNameContainingIgnoreCaseAndOwnerIdNot(name, currentUserId, page);
+            }
         }
-        // Search by name using repository method
-        return lessonRepository.findByNameContainingIgnoreCase(name, page);
+        
+        // Populate owner names for each lesson
+        lessons.forEach(this::populateOwnerName);
+        
+        return lessons;
+    }
+
+    /**
+     * Populates the ownerName field of a lesson with the owner's full name.
+     */
+    private void populateOwnerName(Lesson lesson) {
+        if (lesson.getOwnerId() != null) {
+            userRepository.findById(lesson.getOwnerId()).ifPresent(owner -> {
+                String fullName = owner.getName();
+                if (owner.getSurname1() != null && !owner.getSurname1().isBlank()) {
+                    fullName += " " + owner.getSurname1();
+                }
+                lesson.setOwnerName(fullName);
+            });
+        }
     }
 
     public Lesson getLesson(String id) throws LessonNotFoundException {
-        return lessonRepository.findByIdWithModulesAndAbilities(id)
+        Lesson lesson = lessonRepository.findByIdWithModulesAndAbilities(id)
             .orElseThrow(() -> new LessonNotFoundException(id));
+        populateOwnerName(lesson);
+        return lesson;
+    }
+
+    /**
+     * Get a lesson with access control.
+     * If user doesn't have access, modules are hidden.
+     */
+    public Lesson getLessonWithAccessControl(String id, String username) throws LessonNotFoundException {
+        Lesson lesson = lessonRepository.findByIdWithModulesAndAbilities(id)
+            .orElseThrow(() -> new LessonNotFoundException(id));
+        populateOwnerName(lesson);
+        
+        // If user doesn't have access, hide modules
+        if (!canAccessLessonContent(username, lesson)) {
+            lesson.setModules(new HashSet<>());
+        }
+        
+        return lesson;
     }
 
     public Lesson updateLesson(String id, List<JsonPatchOperation> changes) throws LessonNotFoundException, JsonPatchException {

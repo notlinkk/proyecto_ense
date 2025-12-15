@@ -131,6 +131,28 @@ public class SubscriptionService {
         return subscriptionRepository.findById(id).orElseThrow(() -> new SubscriptionNotFoundException(id));
     }
 
+    /**
+     * Get a subscription with access control - user can only see their own subscriptions.
+     */
+    public Subscription getSubscriptionWithAccessControl(String id, String username) 
+            throws SubscriptionNotFoundException, AccessDeniedException {
+        Subscription subscription = getSubscription(id);
+        
+        // User can only access their own subscriptions
+        if (!subscription.getBuyer().getUsername().equals(username)) {
+            throw new AccessDeniedException("subscription", id);
+        }
+        
+        return subscription;
+    }
+
+    /**
+     * Get subscriptions with access control - only returns user's own subscriptions.
+     */
+    public Page<Subscription> getSubscriptionsWithAccessControl(String username, PageRequest page) {
+        return subscriptionRepository.findByBuyerUsername(username, page);
+    }
+
     public Subscription updateSubscription(String id, List<JsonPatchOperation> changes) throws SubscriptionNotFoundException, JsonPatchException {
         Subscription subscription = subscriptionRepository.findById(id).orElseThrow(() -> new SubscriptionNotFoundException(id));
             JsonPatch patch = new JsonPatch(changes);

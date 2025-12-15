@@ -79,12 +79,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   /**
    * Función de logout.
-   * Limpia el JWT de memoria y opcionalmente notifica al backend.
+   * Limpia el JWT de memoria y notifica al backend para invalidar el refresh token.
    */
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    // Primero llamar al backend para invalidar el refresh token y borrar la cookie
+    try {
+      await authApi.logout();
+    } catch (error) {
+      console.error('Error al hacer logout en el servidor:', error);
+    }
+    // Luego limpiar el token de memoria
     setAccessToken(null);
-    // Opcional: llamar al backend para invalidar el refresh token
-    // authApi.logout().catch(console.error);
   }, []);
 
   // Determinar si el usuario está autenticado basándose en la presencia del JWT

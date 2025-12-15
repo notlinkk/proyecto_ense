@@ -55,12 +55,12 @@ public class AuthenticationController {
         // - httpOnly: true -> No accesible desde JavaScript (protección XSS)
         // - secure: false en desarrollo, true en producción (solo HTTPS)
         // - sameSite: LAX -> Permite envío en navegación cross-site (necesario para CORS)
-        // - path: /auth -> Solo se envía a endpoints de autenticación
+        // - path: / -> Se envía a todas las rutas (necesario porque el frontend usa proxy /api)
         ResponseCookie cookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE_NAME, refreshToken)
                 .secure(false)  // Cambiar a true en producción con HTTPS
                 .httpOnly(true)
                 .sameSite(Cookie.SameSite.LAX.toString())  // LAX para CORS en desarrollo
-                .path("/auth")  // Simplificado para mayor compatibilidad
+                .path("/")  // Usar "/" porque el frontend accede via /api/auth (proxy)
                 .maxAge(Duration.ofDays(7))
                 .build();
 
@@ -95,28 +95,65 @@ public class AuthenticationController {
     // Esto es necesario porque cuando el JWT expira, el usuario no tiene token válido
     @PreAuthorize("isAnonymous() or isAuthenticated()")
     public ResponseEntity<Void> refresh(@CookieValue(name = REFRESH_TOKEN_COOKIE_NAME, required = false) String refreshToken) {
+        System.out.println("=== REFRESH ENDPOINT ===");
+        System.out.println("Refresh token recibido: " + (refreshToken != null ? "Sí (" + refreshToken.substring(0, Math.min(8, refreshToken.length())) + "...)" : "NO"));
+        
         if (refreshToken == null || refreshToken.isBlank()) {
+            System.out.println("ERROR: No refresh token provided");
             throw new InvalidRefreshTokenException("No refresh token provided");
         }
+        
+        // Autenticar con el refresh token (ya validado en el service)
         Authentication auth = authenticationService.login(refreshToken);
-
-        if (auth.getPrincipal() != null) {
-            User user = (User)auth.getPrincipal();
-            return login(new LoginDTO(user.getUsername(), user.getPassword()));
-        }
-
-        throw new InvalidRefreshTokenException(refreshToken);
+        
+        // Generar nuevo JWT
+        String newJwt = authenticationService.generateJWT(auth);
+        
+        // Regenerar refresh token (rotación de tokens por seguridad)
+        String newRefreshToken = authenticationService.regenerateRefreshToken(auth);
+        
+        System.out.println("Refresh exitoso para usuario: " + auth.getName());
+        
+        // Cookie con el nuevo refresh token
+        ResponseCookie cookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE_NAME, newRefreshToken)
+                .secure(false)
+                .httpOnly(true)
+                .sameSite(Cookie.SameSite.LAX.toString())
+                .path("/")
+                .maxAge(Duration.ofDays(7))
+                .build();
+        
+        return ResponseEntity.noContent()
+                .headers(headers -> headers.setBearerAuth(newJwt))
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .build();
     }
 
     @PostMapping("logout")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Void> logout(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String token) {
-        Authentication auth = authenticationService.parseJWT(token);
-
-        if (auth.getPrincipal() != null) {
-            User user = (User)auth.getPrincipal();
+    public ResponseEntity<Void> logout(Authentication authentication) {
+        System.out.println("=== LOGOUT ENDPOINT ===");
+        // Usar el Authentication del SecurityContext (ya parseado por JWTFilter)
+        if (authentication != null && authentication.getName() != null) {
+            String username = authentication.getName();
+            System.out.println("Logout para usuario: " + username);
+            
+            User user = new User();
+            user.setUsername(username);
+            
+            // Invalidar refresh tokens en Redis
             authenticationService.invalidateTokens(user);
-            ResponseCookie cookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE_NAME, null).build();
+            System.out.println("Refresh tokens eliminados de Redis");
+            
+            // Eliminar la cookie del refresh token
+            ResponseCookie cookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE_NAME, "")
+                    .httpOnly(true)
+                    .sameSite(Cookie.SameSite.LAX.toString())  // Mismo sameSite que en login
+                    .path("/")  // Debe coincidir con el path usado en login
+                    .maxAge(0)  // Expira inmediatamente
+                    .build();
+            
+            System.out.println("Cookie de logout: " + cookie.toString());
 
             return ResponseEntity.noContent()
                     .header(HttpHeaders.SET_COOKIE, cookie.toString())

@@ -47,6 +47,10 @@ public class Lesson {
     @JsonView(CreateView.class)
     private String ownerId; // ID del usuario al que pertenece la lección
 
+    @jakarta.persistence.Transient
+    @JsonView(CreateView.class)
+    private String ownerName; // Nombre del propietario (no persistido)
+
     @JsonView(CreateView.class)
     private double price; // Precio de la lección
 
@@ -131,6 +135,14 @@ public class Lesson {
 
     public void setOwnerId(String propietarioId) {
         this.ownerId = propietarioId;
+    }
+
+    public String getOwnerName() {
+        return ownerName;
+    }
+
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
     }
 
     public double getPrice() {

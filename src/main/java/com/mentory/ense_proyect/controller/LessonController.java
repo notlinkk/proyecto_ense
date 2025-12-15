@@ -46,13 +46,15 @@ public class LessonController {
 
     @GetMapping(path="{id}", version = "0")
     @PreAuthorize("hasAuthority('lessons:read')")
-    public ResponseEntity <Lesson> getLessonV0(@PathVariable("id") String id) throws LessonNotFoundException {
-        return ResponseEntity.ok(lessonService.getLesson(id));
+    public ResponseEntity <Lesson> getLessonV0(@PathVariable("id") String id, Authentication authentication) throws LessonNotFoundException {
+        String username = authentication.getName();
+        return ResponseEntity.ok(lessonService.getLessonWithAccessControl(id, username));
     }
     @GetMapping(path="{id}", version = "1")
     @PreAuthorize("hasAuthority('lessons:read')")
-    public ResponseEntity <EntityModel<Lesson>> getLessonV1(@PathVariable("id") String id) throws LessonNotFoundException {
-        EntityModel<Lesson> lesson = EntityModel.of(lessonService.getLesson(id));
+    public ResponseEntity <EntityModel<Lesson>> getLessonV1(@PathVariable("id") String id, Authentication authentication) throws LessonNotFoundException {
+        String username = authentication.getName();
+        EntityModel<Lesson> lesson = EntityModel.of(lessonService.getLessonWithAccessControl(id, username));
         lesson.add(
             entityLinks.linkToItemResource(Lesson.class, lesson).withSelfRel(),
             entityLinks.linkToCollectionResource(Lesson.class).withRel(IanaLinkRelations.COLLECTION),
@@ -67,10 +69,13 @@ public class LessonController {
             @RequestParam(value="nombre", required=false) String nombre,
             @RequestParam(value="page", required=false, defaultValue="0") int page,
             @RequestParam(value="size", required=false, defaultValue="10") int pagesize,
-            @RequestParam(value="sort", required=false, defaultValue="") List<String> sort
+            @RequestParam(value="sort", required=false, defaultValue="") List<String> sort,
+            Authentication authentication
     ) {
+        String currentUserId = authentication != null ? authentication.getName() : null;
         Page<Lesson> lessons = lessonService.getLessons(
                 nombre,
+                currentUserId,
                 PageRequest.of(
                         page, pagesize,
                         Sort.by(sort.stream()
@@ -91,11 +96,13 @@ public class LessonController {
             @RequestParam(value="nombre", required=false) String nombre,
             @RequestParam(value="page", required=false, defaultValue="0") int page,
             @RequestParam(value="size", required=false, defaultValue="2") int pagesize,
-            @RequestParam(value="sort", required=false, defaultValue="") List<String> sort
+            @RequestParam(value="sort", required=false, defaultValue="") List<String> sort,
+            Authentication authentication
     ) {
-
+        String currentUserId = authentication != null ? authentication.getName() : null;
         Page<Lesson> lessons = lessonService.getLessons(
                 nombre,
+                currentUserId,
                 PageRequest.of(
                         page, pagesize,
                         Sort.by(sort.stream()
@@ -127,7 +134,7 @@ public class LessonController {
         if (lessons.hasPrevious()) {
             response.add(
                     linkTo(methodOn(LessonController.class)
-                            .getLessonsV1(nombre, page - 1, pagesize, sort))
+                            .getLessonsV1(nombre, page - 1, pagesize, sort, null))
                             .withRel(IanaLinkRelations.PREVIOUS)
             );
         }
@@ -136,7 +143,7 @@ public class LessonController {
         if (lessons.hasNext()) {
             response.add(
                     linkTo(methodOn(LessonController.class)
-                            .getLessonsV1(nombre, page + 1, pagesize, sort))
+                            .getLessonsV1(nombre, page + 1, pagesize, sort, null))
                             .withRel(IanaLinkRelations.NEXT)
             );
         }

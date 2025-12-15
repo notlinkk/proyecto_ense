@@ -31,4 +31,14 @@ public interface LessonRepository extends JpaRepository <@NonNull Lesson, @NonNu
      */
     @Query("SELECT l FROM Lesson l LEFT JOIN FETCH l.modules LEFT JOIN FETCH l.abilities WHERE l.id = :id")
     Optional<Lesson> findByIdWithModulesAndAbilities(@Param("id") String id);
+
+    /**
+     * Find all lessons excluding those owned by a specific user.
+     */
+    Page<Lesson> findByOwnerIdNot(String ownerId, Pageable pageable);
+
+    /**
+     * Find lessons by name containing the given string, excluding those owned by a specific user.
+     */
+    Page<Lesson> findByNameContainingIgnoreCaseAndOwnerIdNot(String name, String ownerId, Pageable pageable);
 }

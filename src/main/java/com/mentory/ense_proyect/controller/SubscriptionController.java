@@ -47,13 +47,15 @@ public class SubscriptionController {
 
     @GetMapping(path="{id}", version = "0")
     @PreAuthorize("hasAuthority('subscriptions:read')")
-    public ResponseEntity<Subscription> getSubscriptionV0(@PathVariable("id") String id) throws SubscriptionNotFoundException{
-        return ResponseEntity.ok(subscriptionService.getSubscription(id));
+    public ResponseEntity<Subscription> getSubscriptionV0(@PathVariable("id") String id, Authentication authentication) throws SubscriptionNotFoundException{
+        String username = authentication.getName();
+        return ResponseEntity.ok(subscriptionService.getSubscriptionWithAccessControl(id, username));
     }
     @GetMapping(path="{id}", version = "1")
     @PreAuthorize("hasAuthority('subscriptions:read')")
-    public ResponseEntity<EntityModel<Subscription>> getSubscriptionV1(@PathVariable("id") String id) throws SubscriptionNotFoundException{
-        EntityModel<Subscription> subscription = EntityModel.of(subscriptionService.getSubscription(id));
+    public ResponseEntity<EntityModel<Subscription>> getSubscriptionV1(@PathVariable("id") String id, Authentication authentication) throws SubscriptionNotFoundException{
+        String username = authentication.getName();
+        EntityModel<Subscription> subscription = EntityModel.of(subscriptionService.getSubscriptionWithAccessControl(id, username));
         subscription.add(
             entityLinks.linkToItemResource(Subscription.class, subscription).withSelfRel(),
             entityLinks.linkToCollectionResource(Subscription.class).withRel(IanaLinkRelations.COLLECTION),
@@ -65,18 +67,16 @@ public class SubscriptionController {
     @GetMapping(version = "0")
     @PreAuthorize("hasAuthority('subscriptions:read')")
     public ResponseEntity<Page<Subscription>> getSubscriptionsV0(
-            @RequestParam(value="id", required=false) String id,
             @RequestParam(value="page", required=false, defaultValue="0") int page,
-            @RequestParam(value="size", required=false, defaultValue="2") int pagesize,
-            @RequestParam(value="sort", required=false, defaultValue="") List<String> sort
+            @RequestParam(value="size", required=false, defaultValue="10") int pagesize,
+            @RequestParam(value="sort", required=false, defaultValue="") List<String> sort,
+            Authentication authentication
     )
     {
-        Page<Subscription> subscriptions = subscriptionService.getSubscriptions(
-                null,
-                PageRequest.of(
-                        0, 10,
-                        Sort.by(List.of(Sort.Order.asc("id")))
-                )
+        String username = authentication.getName();
+        Page<Subscription> subscriptions = subscriptionService.getSubscriptionsWithAccessControl(
+                username,
+                PageRequest.of(page, pagesize)
         );
 
         if (subscriptions.isEmpty()) {
@@ -88,18 +88,16 @@ public class SubscriptionController {
     @GetMapping(version = "1")
     @PreAuthorize("hasAuthority('subscriptions:read')")
     public ResponseEntity<PagedModel<Subscription>> getSubscriptionsV1(
-            @RequestParam(value="id", required=false) String id,
             @RequestParam(value="page", required=false, defaultValue="0") int page,
-            @RequestParam(value="size", required=false, defaultValue="2") int pagesize,
-            @RequestParam(value="sort", required=false, defaultValue="") List<String> sort
+            @RequestParam(value="size", required=false, defaultValue="10") int pagesize,
+            @RequestParam(value="sort", required=false, defaultValue="") List<String> sort,
+            Authentication authentication
     )
     {
-        Page<Subscription> subscriptions = subscriptionService.getSubscriptions(
-                null,
-                PageRequest.of(
-                        0, 10,
-                        Sort.by(List.of(Sort.Order.asc("id")))
-                )
+        String username = authentication.getName();
+        Page<Subscription> subscriptions = subscriptionService.getSubscriptionsWithAccessControl(
+                username,
+                PageRequest.of(page, pagesize)
         );
 
         if (subscriptions.isEmpty()) {
@@ -121,7 +119,7 @@ public class SubscriptionController {
         if(subscriptions.hasNext()){
             response.add(
                 linkTo(methodOn(SubscriptionController.class)
-                    .getSubscriptionsV1(id, page +1, pagesize, sort))
+                    .getSubscriptionsV1(page +1, pagesize, sort, authentication))
                     .withRel(IanaLinkRelations.NEXT)
             );
         }
@@ -129,7 +127,7 @@ public class SubscriptionController {
         if(subscriptions.hasPrevious()){
             response.add(
                 linkTo(methodOn(SubscriptionController.class)
-                    .getSubscriptionsV1(id, page -1, pagesize, sort))
+                    .getSubscriptionsV1(page -1, pagesize, sort, authentication))
                     .withRel(IanaLinkRelations.PREVIOUS)
             );
         }

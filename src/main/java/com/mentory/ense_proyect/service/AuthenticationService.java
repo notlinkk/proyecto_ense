@@ -55,7 +55,6 @@ public class AuthenticationService {
             UserRepository userRepository,
             RoleRepository roleRepository,
             RefreshTokenRepository refreshTokenRepository
-
     ) {
         this.authenticationManager = authenticationManager;
         this.keyPair = keyPair;
@@ -68,13 +67,24 @@ public class AuthenticationService {
         return authenticationManager.authenticate(UsernamePasswordAuthenticationToken.unauthenticated(username, password));
     }
 
+    /**
+     * Authenticate using a refresh token.
+     * Since the refresh token is already validated, we create an authenticated token directly
+     * without needing to re-verify the password.
+     */
     public Authentication login(String refreshToken) throws AuthenticationException {
         Optional<RefreshToken> token = refreshTokenRepository.findByToken(refreshToken);
         if (token.isPresent()) {
             User user = userRepository.findByUsername(token.get().getUser())
                     .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
-                
-            return login(user.getUsername(), user.getPassword());
+            
+            // El refresh token ya fue validado, así que creamos directamente un token autenticado
+            // NO podemos usar login(username, password) porque user.getPassword() está hasheada
+            return UsernamePasswordAuthenticationToken.authenticated(
+                user,                    // principal
+                null,                    // credentials (no necesarias, ya autenticado)
+                user.getAuthorities()    // authorities/roles
+            );
         }
 
         throw new InvalidRefreshTokenException("Invalid refresh token");

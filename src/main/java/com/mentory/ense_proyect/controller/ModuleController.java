@@ -25,6 +25,7 @@ import com.github.fge.jsonpatch.JsonPatchOperation;
 import com.github.fge.jsonpatch.JsonPatchException;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 
 import java.util.*;
 
@@ -44,14 +45,16 @@ public class ModuleController {
 
     @GetMapping(path="{id}", version = "0")
     @PreAuthorize("hasAuthority('modules:read')")
-    public ResponseEntity<Module> getModuloV0(@PathVariable("id") String id) throws ModuleNotFoundException {
-        return ResponseEntity.ok(moduleService.getModule(id));
+    public ResponseEntity<Module> getModuloV0(@PathVariable("id") String id, Authentication authentication) throws ModuleNotFoundException {
+        String username = authentication.getName();
+        return ResponseEntity.ok(moduleService.getModuleWithAccessControl(id, username));
     }
 
     @GetMapping(path="{id}", version = "1")
     @PreAuthorize("hasAuthority('modules:read')")
-    public ResponseEntity<EntityModel<Module>> getModuleV1(@PathVariable("id") String id) throws ModuleNotFoundException {
-        EntityModel<Module> module = EntityModel.of(moduleService.getModule(id));
+    public ResponseEntity<EntityModel<Module>> getModuleV1(@PathVariable("id") String id, Authentication authentication) throws ModuleNotFoundException {
+        String username = authentication.getName();
+        EntityModel<Module> module = EntityModel.of(moduleService.getModuleWithAccessControl(id, username));
         module.add(
             entityLinks.linkToItemResource(Module.class, module).withSelfRel(),
             entityLinks.linkToCollectionResource(Module.class).withRel(IanaLinkRelations.COLLECTION),
@@ -65,20 +68,15 @@ public class ModuleController {
     public ResponseEntity<Page<Module>> getModulesV0(
             @RequestParam(value="nombre", required=false) String nombre,
             @RequestParam(value="page", required=false, defaultValue="0") int page,
-            @RequestParam(value="size", required=false, defaultValue="2") int pagesize,
-            @RequestParam(value="sort", required=false, defaultValue="") List<String> sort
+            @RequestParam(value="size", required=false, defaultValue="10") int pagesize,
+            @RequestParam(value="sort", required=false, defaultValue="") List<String> sort,
+            Authentication authentication
     ) {
-        Page<Module> modules = moduleService.getModules(
+        String username = authentication.getName();
+        Page<Module> modules = moduleService.getModulesWithAccessControl(
                 nombre,
-                PageRequest.of(
-                        page, pagesize,
-                        Sort.by(sort.stream()
-                                .map(key -> key.startsWith("-") ?
-                                        Sort.Order.desc(key.substring(1)) :
-                                        Sort.Order.asc(key))
-                                .toList()
-                        )
-                )
+                username,
+                PageRequest.of(page, pagesize)
         );
 
         if (modules.isEmpty()) {
@@ -92,20 +90,15 @@ public class ModuleController {
     public ResponseEntity<PagedModel<Module>> getModulesV1(
             @RequestParam(value="nombre", required=false) String nombre,
             @RequestParam(value="page", required=false, defaultValue="0") int page,
-            @RequestParam(value="size", required=false, defaultValue="2") int pagesize,
-            @RequestParam(value="sort", required=false, defaultValue="") List<String> sort
+            @RequestParam(value="size", required=false, defaultValue="10") int pagesize,
+            @RequestParam(value="sort", required=false, defaultValue="") List<String> sort,
+            Authentication authentication
     ) {
-        Page<Module> modules = moduleService.getModules(
+        String username = authentication.getName();
+        Page<Module> modules = moduleService.getModulesWithAccessControl(
                 nombre,
-                PageRequest.of(
-                        page, pagesize,
-                        Sort.by(sort.stream()
-                                .map(key -> key.startsWith("-") ?
-                                        Sort.Order.desc(key.substring(1)) :
-                                        Sort.Order.asc(key))
-                                .toList()
-                        )
-                )
+                username,
+                PageRequest.of(page, pagesize)
         );
 
         if (modules.isEmpty()) {
@@ -128,7 +121,7 @@ public class ModuleController {
         if (modules.hasPrevious()) {
             response.add(
                 linkTo(methodOn(ModuleController.class)
-                        .getModulesV1(nombre, page - 1, pagesize, sort))
+                        .getModulesV1(nombre, page - 1, pagesize, sort, authentication))
                         .withRel(IanaLinkRelations.PREVIOUS)
             );
         }
@@ -137,7 +130,7 @@ public class ModuleController {
         if (modules.hasNext()) {
             response.add(
                 linkTo(methodOn(ModuleController.class)
-                        .getModulesV1(nombre, page + 1, pagesize, sort))
+                        .getModulesV1(nombre, page + 1, pagesize, sort, authentication))
                         .withRel(IanaLinkRelations.NEXT)
             );
         }

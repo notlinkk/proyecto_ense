@@ -33,6 +33,7 @@ export interface Lesson {
   name: string;
   description: string;
   ownerId: string;
+  ownerName?: string;
   price?: number;
   imageUrl?: string;
   modules?: Module[];

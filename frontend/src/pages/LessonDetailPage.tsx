@@ -115,6 +115,9 @@ function LessonDetailPage() {
         <div className="lesson-header-content">
           <div>
             <h1>{lesson.name}</h1>
+            {lesson.ownerName && (
+              <p className="lesson-author">Por {lesson.ownerName}</p>
+            )}
             <p className="lesson-description">{lesson.description}</p>
             
             <div className="lesson-stats">

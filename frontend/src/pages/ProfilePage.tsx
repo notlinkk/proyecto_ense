@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { protectedApi } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { User, Subscription, Lesson } from '../types';
@@ -18,6 +18,7 @@ import '../styles/ProfilePage.css';
 function ProfilePage() {
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   
   const [user, setUser] = useState<User | null>(null);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
@@ -27,29 +28,30 @@ function ProfilePage() {
   const [isBecomingTeacher, setIsBecomingTeacher] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        const [userData, subsData, lessonsData] = await Promise.all([
-          protectedApi.getCurrentUser(),
-          protectedApi.getMySubscriptions(0, 10),
-          protectedApi.getMyLessons(0, 10)
-        ]);
-        setUser(userData);
-        setSubscriptions(subsData.content || []);
-        setMyLessons(lessonsData.content || []);
-        setLessonsCount(lessonsData.totalElements || 0);
-      } catch (err) {
-        console.error('Error al cargar perfil:', err);
-        setError('No se pudo cargar tu perfil.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
+  const fetchData = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const [userData, subsData, lessonsData] = await Promise.all([
+        protectedApi.getCurrentUser(),
+        protectedApi.getMySubscriptions(0, 10),
+        protectedApi.getMyLessons(0, 10)
+      ]);
+      setUser(userData);
+      setSubscriptions(subsData.content || []);
+      setMyLessons(lessonsData.content || []);
+      setLessonsCount(lessonsData.totalElements || 0);
+    } catch (err) {
+      console.error('Error al cargar perfil:', err);
+      setError('No se pudo cargar tu perfil.');
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
+
+  // Refetch data every time the page is visited
+  useEffect(() => {
+    fetchData();
+  }, [fetchData, location.key]);
 
   const handleLogout = () => {
     logout();

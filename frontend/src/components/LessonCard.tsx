@@ -28,6 +28,10 @@ function LessonCard({ lesson }: LessonCardProps) {
             <span className="lesson-price">${lesson.price.toFixed(2)}</span>
           )}
         </div>
+
+        {lesson.ownerName && (
+          <p className="lesson-teacher">Por {lesson.ownerName}</p>
+        )}
         
         <p className="lesson-description">
           {lesson.description || 'Sin descripción disponible'}
