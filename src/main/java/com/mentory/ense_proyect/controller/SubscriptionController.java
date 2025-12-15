@@ -148,7 +148,7 @@ public class SubscriptionController {
         Subscription newSubscription = subscriptionService.createSubscription(subscriptionDTO, username);
         return ResponseEntity
                 .created(MvcUriComponentsBuilder
-                        .fromMethodName(SubscriptionController.class, "getSubscriptionV1", newSubscription.getId())
+                        .fromMethodName(SubscriptionController.class, "getSubscriptionV1", newSubscription.getId(), null)
                         .build()
                         .toUri())
                 .body(newSubscription);

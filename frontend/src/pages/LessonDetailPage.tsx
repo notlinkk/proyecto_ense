@@ -64,6 +64,10 @@ function LessonDetailPage() {
     try {
       setIsSubscribing(true);
       await protectedApi.subscribeToLesson(id);
+      
+      // Recargar la lección para obtener los módulos ahora que tenemos acceso
+      const updatedLesson = await protectedApi.getLesson(id);
+      setLesson(updatedLesson);
       setHasAccess(true);
     } catch (err) {
       console.error('Error al suscribirse:', err);
