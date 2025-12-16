@@ -158,7 +158,7 @@ public class LessonController {
         Lesson newLesson = lessonService.createLesson(lessonDTO, ownerId);
         return ResponseEntity
                 .created(MvcUriComponentsBuilder
-                        .fromMethodName(LessonController.class, "getLessonV1", newLesson.getId())
+                        .fromMethodName(LessonController.class, "getLessonV1", newLesson.getId(), null)
                         .build()
                         .toUri())
                 .body(newLesson);

@@ -40,9 +40,6 @@ public class Module {
     @JsonView(CreateView.class)
     private int duration;   // Duración en minutos
 
-    @JsonView(ExternalView.class)
-    private int position;          // Orden del módulo dentro de la lección (ver como hacerlo)
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lesson_id", nullable = false)
     @JsonIgnore
@@ -51,12 +48,11 @@ public class Module {
     // Constructor
     public Module(){}
 
-    public Module( String titulo, String descripcion, String contenido, int duracionMins, int orden) {
+    public Module(String titulo, String descripcion, String contenido, int duracionMins) {
         this.title = titulo;
         this.description = descripcion;
         this.content = contenido;
         this.duration = duracionMins;
-        this.position = orden;
     }
 
     // Getters and Setters
@@ -101,13 +97,6 @@ public class Module {
         this.duration = duracionMins;
     }
 
-    public int getPosition() {
-        return position;
-    }
-
-    public void setPosition(int orden) {
-        this.position = orden;
-    }
     public Lesson getLesson() {
         return lesson;
     }

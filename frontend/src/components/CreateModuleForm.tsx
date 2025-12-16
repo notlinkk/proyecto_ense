@@ -18,7 +18,6 @@ export function CreateModuleForm({ lessonId, onModuleCreated, onCancel }: Create
   const [description, setDescription] = useState('');
   const [content, setContent] = useState('');
   const [duration, setDuration] = useState(30);
-  const [position, setPosition] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,7 +38,6 @@ export function CreateModuleForm({ lessonId, onModuleCreated, onCancel }: Create
         description: description.trim(),
         content: content.trim(),
         duration,
-        position,
         lessonId
       });
       
@@ -84,18 +82,6 @@ export function CreateModuleForm({ lessonId, onModuleCreated, onCancel }: Create
               id="module-duration"
               value={duration}
               onChange={(e) => setDuration(parseInt(e.target.value) || 0)}
-              min={1}
-              disabled={loading}
-            />
-          </div>
-
-          <div className="form-group flex-1">
-            <label htmlFor="module-position">Posición</label>
-            <input
-              type="number"
-              id="module-position"
-              value={position}
-              onChange={(e) => setPosition(parseInt(e.target.value) || 1)}
               min={1}
               disabled={loading}
             />

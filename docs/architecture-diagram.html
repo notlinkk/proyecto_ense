@@ -4,275 +4,288 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mentory - Diagrama de Arquitectura</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #fff;
-            margin: 0;
-            padding: 20px;
-            min-height: 100vh;
+        * {
+            box-sizing: border-box;
         }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f8f9fa;
+            color: #2d3748;
+            margin: 0;
+            padding: 60px 20px;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        
         h1 {
             text-align: center;
-            color: #00d4ff;
-            margin-bottom: 10px;
+            color: #1a202c;
+            margin-bottom: 8px;
+            font-weight: 700;
+            font-size: 2.5rem;
+            letter-spacing: -0.5px;
         }
-        h2 {
+        
+        .subtitle {
             text-align: center;
-            color: #888;
-            font-weight: normal;
+            color: #718096;
+            font-weight: 400;
             margin-top: 0;
+            margin-bottom: 50px;
+            font-size: 1.1rem;
         }
+        
         .diagram-container {
-            background: #fff;
-            border-radius: 12px;
-            padding: 30px;
-            margin: 20px auto;
-            max-width: 1400px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 50px 40px;
+            margin: 0 auto 50px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(0, 0, 0, 0.03);
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        .tech-table {
-            max-width: 800px;
-            margin: 30px auto;
-            border-collapse: collapse;
+        
+        .diagram-container .mermaid {
+            display: flex;
+            justify-content: center;
             width: 100%;
         }
-        .tech-table th, .tech-table td {
-            padding: 12px 20px;
-            text-align: left;
-            border-bottom: 1px solid #333;
+        
+        .diagram-container .mermaid svg {
+            max-width: 100%;
+            height: auto;
         }
-        .tech-table th {
-            background: #00d4ff;
-            color: #1a1a2e;
-        }
-        .tech-table tr:hover {
-            background: rgba(0, 212, 255, 0.1);
-        }
+        
         .section-title {
-            color: #00d4ff;
+            color: #1a202c;
             text-align: center;
-            margin-top: 40px;
+            margin: 50px 0 25px;
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+        
+        .table-container {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(0, 0, 0, 0.03);
+            overflow-x: auto;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .tech-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .tech-table th {
+            padding: 14px 20px;
+            text-align: left;
+            background: #f7fafc;
+            color: #4a5568;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .tech-table th:first-child {
+            border-radius: 8px 0 0 0;
+        }
+        
+        .tech-table th:last-child {
+            border-radius: 0 8px 0 0;
+        }
+        
+        .tech-table td {
+            padding: 14px 20px;
+            text-align: left;
+            border-bottom: 1px solid #edf2f7;
+            color: #2d3748;
+        }
+        
+        .tech-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .tech-table tr:hover td {
+            background: #f7fafc;
+        }
+        
+        .tech-table td:first-child {
+            font-weight: 500;
+            color: #4a5568;
+        }
+        
+        .tech-table td:last-child {
+            font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            color: #5a67d8;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-bottom: 20px;
+            color: #a0aec0;
+            font-size: 0.85rem;
         }
     </style>
 </head>
 <body>
-    <h1>🎓 MENTORY</h1>
-    <h2>Diagrama de Arquitectura del Sistema</h2>
+    <div class="container">
+        <h1>Mentory</h1>
+        <p class="subtitle">Arquitectura del Sistema</p>
 
-    <!-- Diagrama Principal -->
-    <div class="diagram-container">
-        <pre class="mermaid">
-flowchart TB
-    subgraph Frontend["🌐 FRONTEND (Puerto 3000)"]
-        direction TB
-        React["⚛️ React 18.2.0"]
-        TS["📘 TypeScript 5.2.2"]
-        Vite["⚡ Vite 7.3.0"]
-        Axios["📡 Axios 1.6.2"]
-        Router["🔀 React Router 6.21.0"]
-        
-        subgraph Pages["📄 Páginas"]
-            Home["HomePage"]
-            Login["LoginPage"]
-            Lessons["LessonsPage"]
-            Detail["LessonDetailPage"]
-            Profile["ProfilePage"]
-        end
-        
-        subgraph Context["🔐 Context API"]
-            AuthCtx["AuthContext\n(JWT en memoria)"]
-        end
+        <div class="diagram-container">
+            <pre class="mermaid">
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#e2e8f0', 'primaryTextColor': '#1a202c', 'primaryBorderColor': '#cbd5e0', 'lineColor': '#718096', 'secondaryColor': '#f7fafc', 'tertiaryColor': '#edf2f7', 'fontSize': '14px', 'fontFamily': 'Inter'}}}%%
+flowchart LR
+    subgraph Cliente["CLIENTE"]
+        Browser["<i>Navegador Web</i>"]
     end
 
-    subgraph Backend["⚙️ BACKEND - Spring Boot 4.0.0 (Puerto 8080)"]
-        direction TB
-        
-        subgraph Security["🔒 Seguridad"]
-            SpringSec["Spring Security 7.0.0"]
-            JWT["JWT (jjwt 0.12.5)"]
-            RSA["RSA Keys\n(PKCS12 Keystore)"]
-        end
-        
-        subgraph Controllers["📡 Controllers (REST API)"]
-            AuthC["AuthController"]
-            LessonC["LessonController"]
-            ModuleC["ModuleController"]
-            SubC["SubscriptionController"]
-            UserC["UserController"]
-            AbilityC["AbilityController"]
-        end
-        
-        subgraph Services["🧩 Services"]
-            AuthS["AuthService"]
-            LessonS["LessonService"]
-            ModuleS["ModuleService"]
-            SubS["SubscriptionService"]
-            UserS["UserService"]
-            JWTS["JWTService"]
-            RefreshS["RefreshTokenService"]
-        end
-        
-        subgraph Entities["📚 Entities (JPA/Hibernate)"]
-            User["User"]
-            Lesson["Lesson"]
-            Module["Module"]
-            Subscription["Subscription"]
-            Ability["Ability"]
-        end
-        
-        subgraph Docs["📖 Documentación"]
-            OpenAPI["SpringDoc OpenAPI 3.0"]
-            Swagger["Swagger UI + Scalar"]
-        end
+    subgraph Frontend["FRONTEND"]
+        FE_Stack["<b>React</b> + <b>TypeScript</b>
+        <i>Vite</i>
+        <i>Axios</i>"]
     end
 
-    subgraph Databases["🗄️ BASES DE DATOS"]
-        direction LR
-        subgraph PostgreSQL["🐘 PostgreSQL 16 (5432)"]
-            UsersTable["users"]
-            LessonsTable["lessons"]
-            ModulesTable["modules"]
-            SubsTable["subscriptions"]
-            AbilitiesTable["abilities"]
-        end
-        
-        subgraph Redis["🔴 Redis 7 (6379)"]
-            RefreshTokens["refresh_token:{user}\nTTL: 72 horas"]
-        end
+    subgraph Backend["BACKEND"]
+        BE_Stack["<b>Spring Boot</b>
+        <i>Spring Security</i>
+        <i>Spring Data JPA</i>
+        <b>JWT</b> + <b>RSA</b>"]
     end
 
-    Frontend -->|"HTTP/REST\n(Vite Proxy /api)"| Backend
-    Backend -->|"JDBC"| PostgreSQL
-    Backend -->|"Redis Protocol"| Redis
-    
-    AuthCtx -.->|"Access Token: 15min\nRefresh Token: Cookie HttpOnly"| Security
-        </pre>
-    </div>
+    subgraph Persistencia["PERSISTENCIA"]
+        PostgreSQL["<b>PostgreSQL</b>
+        <i>Datos principales</i>"]
+        Redis["<b>Redis</b>
+        <i>Tokens de sesion</i>"]
+    end
 
-    <!-- Diagrama de Autenticación -->
-    <h3 class="section-title">🔐 Flujo de Autenticación</h3>
-    <div class="diagram-container">
-        <pre class="mermaid">
+    subgraph Infra["INFRAESTRUCTURA"]
+        Docker["<b>Docker Compose</b>"]
+    end
+
+    Cliente -->|HTTP| Frontend
+    Frontend -->|REST API| Backend
+    Backend -->|JDBC| PostgreSQL
+    Backend -->|Redis Protocol| Redis
+    Infra -.->|Contenedores| Persistencia
+            </pre>
+        </div>
+
+        <h3 class="section-title">Stack Tecnologico</h3>
+        
+        <div class="table-container">
+            <table class="tech-table">
+                <thead>
+                    <tr>
+                        <th>Capa</th>
+                        <th>Tecnologia</th>
+                        <th>Version</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Frontend</td><td>React + TypeScript</td><td>18.2.0 / 5.2.2</td></tr>
+                    <tr><td>Build Tool</td><td>Vite</td><td>7.3.0</td></tr>
+                    <tr><td>HTTP Client</td><td>Axios</td><td>1.6.2</td></tr>
+                    <tr><td>Routing</td><td>React Router DOM</td><td>6.21.0</td></tr>
+                    <tr><td>Backend</td><td>Spring Boot</td><td>4.0.0-SNAPSHOT</td></tr>
+                    <tr><td>Java</td><td>JDK</td><td>25</td></tr>
+                    <tr><td>Seguridad</td><td>Spring Security + JWT</td><td>7.0.0 / 0.12.5</td></tr>
+                    <tr><td>ORM</td><td>Hibernate (JPA)</td><td>-</td></tr>
+                    <tr><td>API Docs</td><td>SpringDoc OpenAPI</td><td>3.0.0-RC1</td></tr>
+                    <tr><td>Base de Datos</td><td>PostgreSQL</td><td>16</td></tr>
+                    <tr><td>Cache</td><td>Redis</td><td>7</td></tr>
+                    <tr><td>Contenedores</td><td>Docker Compose</td><td>3.9</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 class="section-title">Flujo de Autenticacion</h3>
+        
+        <div class="diagram-container">
+            <pre class="mermaid">
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#e2e8f0', 'primaryTextColor': '#1a202c', 'primaryBorderColor': '#cbd5e0', 'lineColor': '#718096', 'secondaryColor': '#f7fafc', 'tertiaryColor': '#edf2f7', 'fontSize': '13px', 'fontFamily': 'Inter'}}}%%
 sequenceDiagram
-    participant F as 🌐 Frontend
-    participant A as ⚙️ Auth API
-    participant P as 🐘 PostgreSQL
-    participant R as 🔴 Redis
+    participant C as Cliente
+    participant F as Frontend
+    participant B as Backend
+    participant P as PostgreSQL
+    participant R as Redis
 
-    Note over F,R: 📝 LOGIN
-    F->>A: POST /auth/login (credentials)
-    A->>P: Validar usuario
-    P-->>A: User data
-    A->>R: Guardar refresh_token (TTL: 72h)
-    A-->>F: JWT (header) + Cookie HttpOnly
+    Note over C,R: LOGIN
+    C->>F: Usuario y password
+    F->>B: POST /auth/login
+    B->>P: Validar credenciales
+    P-->>B: Usuario valido
+    B->>R: Guardar refresh token (72h TTL)
+    B-->>F: JWT (header) + Refresh Token (cookie HttpOnly)
+    F->>F: Guardar JWT en memoria
+    F-->>C: Login exitoso
 
-    Note over F,R: 🔄 REFRESH (cuando expira JWT)
-    F->>A: POST /auth/refresh (Cookie auto-enviada)
-    A->>R: Validar refresh_token
-    R-->>A: ✓ Token válido
-    A->>R: Rotar token (nuevo refresh_token)
-    A-->>F: Nuevo JWT + Nueva Cookie
+    Note over C,R: PETICION PROTEGIDA
+    C->>F: Accion del usuario
+    F->>B: Request + JWT (Authorization header)
+    B->>B: Validar JWT (firma RSA)
+    B-->>F: Respuesta
+    F-->>C: Datos
 
-    Note over F,R: 🚪 LOGOUT
-    F->>A: POST /auth/logout
-    A->>R: Eliminar refresh_token
-    A-->>F: Cookie eliminada (maxAge=0)
-        </pre>
+    Note over C,R: JWT EXPIRADO (15 min)
+    C->>F: Accion del usuario
+    F->>B: Request + JWT expirado
+    B-->>F: 401 Unauthorized
+    F->>B: POST /auth/refresh (cookie auto-enviada)
+    B->>R: Validar refresh token
+    R-->>B: Token valido
+    B->>R: Rotar refresh token (nuevo token)
+    B-->>F: Nuevo JWT + Nueva cookie
+    F->>F: Actualizar JWT en memoria
+    F->>B: Reintentar request original
+    B-->>F: Respuesta
+    F-->>C: Datos
+
+    Note over C,R: LOGOUT
+    C->>F: Cerrar sesion
+    F->>B: POST /auth/logout
+    B->>R: Eliminar refresh token
+    B-->>F: Cookie eliminada (maxAge=0)
+    F->>F: Borrar JWT de memoria
+    F-->>C: Redirigir a login
+            </pre>
+        </div>
+        
+        <p class="footer">Mentory - Plataforma de Aprendizaje</p>
     </div>
-
-    <!-- Diagrama de Base de Datos -->
-    <h3 class="section-title">🗄️ Modelo de Base de Datos</h3>
-    <div class="diagram-container">
-        <pre class="mermaid">
-erDiagram
-    USERS {
-        string username PK
-        string name
-        string email
-        string password
-        string role
-    }
-    
-    LESSONS {
-        string id PK
-        string name
-        string description
-        string image_url
-        string owner_id FK
-    }
-    
-    MODULES {
-        string id PK
-        string title
-        string content
-        int position
-        int duration
-        string lesson_id FK
-    }
-    
-    SUBSCRIPTIONS {
-        string id PK
-        string user_id FK
-        string lesson_id FK
-        datetime subscribed_at
-    }
-    
-    ABILITIES {
-        string name PK
-        string description
-    }
-    
-    LESSON_ABILITIES {
-        string lesson_id FK
-        string ability_name FK
-    }
-    
-    USERS ||--o{ LESSONS : "creates"
-    USERS ||--o{ SUBSCRIPTIONS : "has"
-    LESSONS ||--o{ MODULES : "contains"
-    LESSONS ||--o{ SUBSCRIPTIONS : "has"
-    LESSONS ||--o{ LESSON_ABILITIES : "has"
-    ABILITIES ||--o{ LESSON_ABILITIES : "in"
-        </pre>
-    </div>
-
-    <!-- Tabla de Tecnologías -->
-    <h3 class="section-title">📦 Stack Tecnológico</h3>
-    <table class="tech-table">
-        <thead>
-            <tr>
-                <th>Capa</th>
-                <th>Tecnología</th>
-                <th>Versión</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr><td>Frontend</td><td>React + TypeScript</td><td>18.2.0 / 5.2.2</td></tr>
-            <tr><td>Build Tool</td><td>Vite</td><td>7.3.0</td></tr>
-            <tr><td>HTTP Client</td><td>Axios</td><td>1.6.2</td></tr>
-            <tr><td>Routing</td><td>React Router DOM</td><td>6.21.0</td></tr>
-            <tr><td>Backend</td><td>Spring Boot</td><td>4.0.0-SNAPSHOT</td></tr>
-            <tr><td>Java</td><td>JDK</td><td>25</td></tr>
-            <tr><td>Seguridad</td><td>Spring Security + JWT</td><td>7.0.0 / 0.12.5</td></tr>
-            <tr><td>ORM</td><td>Hibernate (JPA)</td><td>-</td></tr>
-            <tr><td>API Docs</td><td>SpringDoc OpenAPI</td><td>3.0.0-RC1</td></tr>
-            <tr><td>Base de Datos</td><td>PostgreSQL</td><td>16</td></tr>
-            <tr><td>Cache/Tokens</td><td>Redis</td><td>7</td></tr>
-            <tr><td>Containerización</td><td>Docker Compose</td><td>3.9</td></tr>
-        </tbody>
-    </table>
 
     <script>
         mermaid.initialize({ 
             startOnLoad: true,
-            theme: 'default',
             flowchart: {
                 useMaxWidth: true,
                 htmlLabels: true,
-                curve: 'basis'
+                curve: 'basis',
+                padding: 20
             }
         });
     </script>

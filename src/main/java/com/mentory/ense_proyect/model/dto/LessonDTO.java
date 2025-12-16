@@ -11,5 +11,7 @@ import java.util.Set;
 public record LessonDTO(
     String name,
     String description,
+    Double price,
+    String imageUrl,
     Set<String> abilities  // Nombres de las habilidades
 ) {}

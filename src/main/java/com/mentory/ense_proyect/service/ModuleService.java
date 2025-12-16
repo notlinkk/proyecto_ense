@@ -75,14 +75,14 @@ public class ModuleService {
         Lesson lesson = lessonRepository.findById(dto.lessonId())
                 .orElseThrow(() -> new LessonNotFoundException(dto.lessonId()));
         
-        Module module = new Module(dto.title(), dto.description(), dto.content(), dto.duration(), dto.position());
+        Module module = new Module(dto.title(), dto.description(), dto.content(), dto.duration());
         module.setId(UUID.randomUUID().toString());
         module.setLesson(lesson);
         return moduleRepository.save(module);
     }
 
     public Page<@NonNull Module> getModules(@Nullable String name, PageRequest page) {
-        Example<Module> example = Example.of(new Module(name, null, null,0,0));
+        Example<Module> example = Example.of(new Module(name, null, null, 0));
         return moduleRepository.findAll(example, page);
     }
 

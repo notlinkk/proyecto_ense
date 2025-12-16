@@ -29,6 +29,14 @@ function LessonDetailPage() {
   const [showAddModule, setShowAddModule] = useState(false);
 
   const isOwner = currentUser && lesson && lesson.ownerId === currentUser.username;
+  
+  // Debug: log para verificar la comparación de owner
+  console.log('Debug Owner Check:', {
+    lessonOwnerId: lesson?.ownerId,
+    currentUsername: currentUser?.username,
+    isOwner,
+    hasAccess
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -94,9 +102,8 @@ function LessonDetailPage() {
     );
   }
 
-  // Ordenar módulos por posición
-  const sortedModules = [...(lesson.modules || [])].sort((a, b) => a.position - b.position);
-  const totalDuration = sortedModules.reduce((acc, m) => acc + m.duration, 0);
+  const modules = lesson.modules || [];
+  const totalDuration = modules.reduce((acc, m) => acc + m.duration, 0);
 
   return (
     <div className="lesson-detail-page">
@@ -126,7 +133,7 @@ function LessonDetailPage() {
             
             <div className="lesson-stats">
               <span className="stat">
-                {sortedModules.length} {sortedModules.length === 1 ? 'módulo' : 'módulos'}
+                {modules.length} {modules.length === 1 ? 'módulo' : 'módulos'}
               </span>
               <span className="stat">
                 {totalDuration} min
@@ -170,8 +177,8 @@ function LessonDetailPage() {
         )}
       </header>
 
-      {/* Contenido - Módulos (solo visible si tiene acceso) */}
-      {hasAccess ? (
+      {/* Contenido - Módulos (solo visible si tiene acceso o es owner) */}
+      {(hasAccess || isOwner) ? (
         <section className="modules-section">
           <div className="modules-header">
             <h2>Contenido del Curso</h2>
@@ -185,9 +192,9 @@ function LessonDetailPage() {
             )}
           </div>
           
-          {sortedModules.length > 0 ? (
+          {modules.length > 0 ? (
             <div className="modules-list">
-              {sortedModules.map((module, index) => (
+              {modules.map((module, index) => (
                 <ModuleItem
                   key={module.id}
                   module={module}
@@ -218,11 +225,11 @@ function LessonDetailPage() {
             />
           )}
         </section>
-      ) : (
+      ) : !isOwner ? (
         <section className="modules-section locked-section">
           <div className="locked-content">
             <h2>Contenido Bloqueado</h2>
-            <p>Suscríbete a esta lección para acceder a los {sortedModules.length} módulos.</p>
+            <p>Suscríbete a esta lección para acceder a los {modules.length} módulos.</p>
             <button 
               className="subscribe-button-large"
               onClick={handleSubscribe}
@@ -232,7 +239,7 @@ function LessonDetailPage() {
             </button>
           </div>
         </section>
-      )}
+      ) : null}
 
       {/* Botón de acción */}
       <div className="lesson-actions">

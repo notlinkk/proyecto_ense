@@ -10,6 +10,5 @@ public record ModuleDTO(
     String description,
     String content,
     int duration,
-    int position,
     String lessonId  // ID de la lección a la que pertenece
 ) {}

@@ -21,7 +21,6 @@ export interface Module {
   description: string;
   content: string;      // Puede ser texto, URL de video, etc.
   duration: number;     // Duración en minutos
-  position: number;     // Orden del módulo dentro de la lección
 }
 
 /**
@@ -84,6 +83,7 @@ export interface PageResponse<T> {
 export interface CreateLessonDTO {
   name: string;
   description: string;
+  price?: number;
   imageUrl?: string;
   abilities: string[];  // Nombres de las habilidades
 }
@@ -97,7 +97,6 @@ export interface CreateModuleDTO {
   description: string;
   content: string;
   duration: number;
-  position: number;
   lessonId: string;
 }
 

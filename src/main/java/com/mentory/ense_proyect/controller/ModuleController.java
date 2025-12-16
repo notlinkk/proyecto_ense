@@ -144,7 +144,7 @@ public class ModuleController {
         Module newModule = moduleService.createModule(moduleDTO);
         return ResponseEntity
                 .created(MvcUriComponentsBuilder
-                        .fromMethodName(ModuleController.class, "getModuleV1", newModule.getId())
+                        .fromMethodName(ModuleController.class, "getModuleV1", newModule.getId(), null)
                         .build()
                         .toUri())
                 .body(newModule);

@@ -91,6 +91,14 @@ public class LessonService {
         lesson.setId(UUID.randomUUID().toString());
         lesson.setHabilidad(abilities);
         
+        // Establecer precio e imagen si se proporcionan
+        if (dto.price() != null) {
+            lesson.setPrice(dto.price());
+        }
+        if (dto.imageUrl() != null && !dto.imageUrl().isBlank()) {
+            lesson.setImageUrl(dto.imageUrl());
+        }
+        
         return lessonRepository.save(lesson);
     }
 
