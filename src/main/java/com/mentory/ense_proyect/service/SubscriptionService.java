@@ -15,11 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Page;
 
-import com.github.fge.jsonpatch.JsonPatch;
-import com.github.fge.jsonpatch.JsonPatchException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.github.fge.jsonpatch.JsonPatchOperation;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -32,17 +29,14 @@ public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final LessonRepository lessonRepository;
     private final UserRepository userRepository;
-    private final ObjectMapper mapper;
 
     @Autowired
     public SubscriptionService(SubscriptionRepository subscriptionRepository, 
                                LessonRepository lessonRepository,
-                               UserRepository userRepository,
-                               ObjectMapper mapper) {
+                               UserRepository userRepository) {
         this.subscriptionRepository = subscriptionRepository;
         this.lessonRepository = lessonRepository;
         this.userRepository = userRepository;
-        this.mapper = mapper;
     }
 
     // CRUD
@@ -99,9 +93,14 @@ public class SubscriptionService {
     }
 
     /**
-     * Check if user can access lesson content (is owner or has subscription).
+     * Check if user can access lesson content (is owner, has subscription, or is admin).
      */
     public boolean canAccessLessonContent(String username, String lessonId) throws LessonNotFoundException {
+        // Admin can always access
+        if (isAdmin(username)) {
+            return true;
+        }
+        
         Lesson lesson = lessonRepository.findById(lessonId)
                 .orElseThrow(() -> new LessonNotFoundException(lessonId));
         
@@ -112,6 +111,16 @@ public class SubscriptionService {
         
         // Check for active subscription
         return hasActiveSubscription(username, lessonId);
+    }
+
+    /**
+     * Check if user has ADMIN role.
+     */
+    private boolean isAdmin(String username) {
+        return userRepository.findById(username)
+            .map(user -> user.getRoles().stream()
+                .anyMatch(role -> "ADMIN".equals(role.getRolename())))
+            .orElse(false);
     }
 
     /**
@@ -133,10 +142,16 @@ public class SubscriptionService {
 
     /**
      * Get a subscription with access control - user can only see their own subscriptions.
+     * Admin users can see all subscriptions.
      */
     public Subscription getSubscriptionWithAccessControl(String id, String username) 
             throws SubscriptionNotFoundException, AccessDeniedException {
         Subscription subscription = getSubscription(id);
+        
+        // Admin can access all subscriptions
+        if (isAdmin(username)) {
+            return subscription;
+        }
         
         // User can only access their own subscriptions
         if (!subscription.getBuyer().getUsername().equals(username)) {
@@ -148,17 +163,25 @@ public class SubscriptionService {
 
     /**
      * Get subscriptions with access control - only returns user's own subscriptions.
+     * Admin users can see all subscriptions.
      */
     public Page<Subscription> getSubscriptionsWithAccessControl(String username, PageRequest page) {
+        // Admin can see all subscriptions
+        if (isAdmin(username)) {
+            return subscriptionRepository.findAll(page);
+        }
         return subscriptionRepository.findByBuyerUsername(username, page);
     }
 
-    public Subscription updateSubscription(String id, List<JsonPatchOperation> changes) throws SubscriptionNotFoundException, JsonPatchException {
+    public Subscription updateSubscription(String id, Map<String, Object> changes) throws SubscriptionNotFoundException {
         Subscription subscription = subscriptionRepository.findById(id).orElseThrow(() -> new SubscriptionNotFoundException(id));
-            JsonPatch patch = new JsonPatch(changes);
-            JsonNode patched = patch.apply(mapper.convertValue(subscription, JsonNode.class));
-            Subscription subscriptionPatched = mapper.convertValue(patched, Subscription.class);
-            return subscriptionRepository.save(subscriptionPatched);
+        BeanWrapper wrapper = new BeanWrapperImpl(subscription);
+        changes.forEach((key, value) -> {
+            if (wrapper.isWritableProperty(key)) {
+                wrapper.setPropertyValue(key, value);
+            }
+        });
+        return subscriptionRepository.save(subscription);
     }
 
     public void deleteSubscription(String id) throws SubscriptionNotFoundException {

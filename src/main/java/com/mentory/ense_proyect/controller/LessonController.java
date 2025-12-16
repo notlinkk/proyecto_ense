@@ -22,12 +22,10 @@ import org.springframework.hateoas.server.ExposesResourceFor;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
-import com.github.fge.jsonpatch.JsonPatchException;
-import com.github.fge.jsonpatch.JsonPatchOperation;
-
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @RestController
@@ -175,8 +173,8 @@ public class LessonController {
     @PreAuthorize("hasAuthority('lessons:update')")
     public ResponseEntity<Lesson> updateLesson(
             @PathVariable("id") String id,
-            @RequestBody List<JsonPatchOperation> changes
-    ) throws LessonNotFoundException, JsonPatchException {
+            @RequestBody Map<String, Object> changes
+    ) throws LessonNotFoundException {
         return ResponseEntity.ok(lessonService.updateLesson(id, changes));
     }
 

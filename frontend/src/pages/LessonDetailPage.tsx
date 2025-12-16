@@ -29,14 +29,6 @@ function LessonDetailPage() {
   const [showAddModule, setShowAddModule] = useState(false);
 
   const isOwner = currentUser && lesson && lesson.ownerId === currentUser.username;
-  
-  // Debug: log para verificar la comparación de owner
-  console.log('Debug Owner Check:', {
-    lessonOwnerId: lesson?.ownerId,
-    currentUsername: currentUser?.username,
-    isOwner,
-    hasAccess
-  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -103,7 +95,9 @@ function LessonDetailPage() {
   }
 
   const modules = lesson.modules || [];
-  const totalDuration = modules.reduce((acc, m) => acc + m.duration, 0);
+  // Use the pre-calculated stats from backend (available even without access)
+  const moduleCount = lesson.moduleCount ?? modules.length;
+  const totalDuration = lesson.totalDuration ?? modules.reduce((acc, m) => acc + m.duration, 0);
 
   return (
     <div className="lesson-detail-page">
@@ -133,7 +127,7 @@ function LessonDetailPage() {
             
             <div className="lesson-stats">
               <span className="stat">
-                {modules.length} {modules.length === 1 ? 'módulo' : 'módulos'}
+                {moduleCount} {moduleCount === 1 ? 'módulo' : 'módulos'}
               </span>
               <span className="stat">
                 {totalDuration} min

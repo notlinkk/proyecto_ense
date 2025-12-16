@@ -47,10 +47,14 @@ export interface AuthState {
   isLoading: boolean;
 }
 
+import { User } from './entities.types';
+
 /**
  * Acciones disponibles en el contexto de autenticación.
  */
 export interface AuthContextType extends AuthState {
+  /** Usuario actual autenticado */
+  user: User | null;
   /** Realiza el login con las credenciales proporcionadas */
   login: (credentials: LoginCredentials) => Promise<void>;
   /** Cierra la sesión del usuario */

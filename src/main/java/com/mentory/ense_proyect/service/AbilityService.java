@@ -10,11 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Page;
 
-import com.github.fge.jsonpatch.JsonPatch;
-import com.github.fge.jsonpatch.JsonPatchException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.github.fge.jsonpatch.JsonPatchOperation;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -24,12 +21,10 @@ import java.util.*;
 @Service
 public class AbilityService {
     private final AbilityRepository abilityRepository;
-    private final ObjectMapper mapper;
 
     @Autowired
-    public AbilityService(AbilityRepository abilityRepository, ObjectMapper mapper) {
+    public AbilityService(AbilityRepository abilityRepository) {
         this.abilityRepository = abilityRepository;
-        this.mapper = mapper;
     }
 
     public Ability addAbility(Ability ability) throws DuplicatedAbilityException {
@@ -49,12 +44,15 @@ public class AbilityService {
         return abilityRepository.findById(id).orElseThrow(() -> new AbilityNotFoundException(id));
     }
 
-    public Ability updateAbility(String name, List<JsonPatchOperation> changes) throws AbilityNotFoundException, JsonPatchException {
+    public Ability updateAbility(String name, Map<String, Object> changes) throws AbilityNotFoundException {
         Ability ability = abilityRepository.findById(name).orElseThrow(() -> new AbilityNotFoundException(name));
-            JsonPatch patch = new JsonPatch(changes);
-            JsonNode patched = patch.apply(mapper.convertValue(ability, JsonNode.class));
-            Ability updated = mapper.convertValue(patched, Ability.class);
-            return abilityRepository.save(updated);
+        BeanWrapper wrapper = new BeanWrapperImpl(ability);
+        changes.forEach((key, value) -> {
+            if (wrapper.isWritableProperty(key)) {
+                wrapper.setPropertyValue(key, value);
+            }
+        });
+        return abilityRepository.save(ability);
     }
 
     public void deleteAbility(String id) throws AbilityNotFoundException {

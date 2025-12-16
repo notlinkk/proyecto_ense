@@ -28,9 +28,6 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
-import com.github.fge.jsonpatch.JsonPatchException;
-import com.github.fge.jsonpatch.JsonPatchOperation;
-
 import java.util.*;
 
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -263,8 +260,8 @@ public class UserController {
     @PreAuthorize("hasAuthority('users:update')")
     public ResponseEntity<User> updateUser(
             @PathVariable("id") String id,
-            @RequestBody List<JsonPatchOperation> changes
-    ) throws UserNotFoundException, JsonPatchException {
+            @RequestBody Map<String, Object> changes
+    ) throws UserNotFoundException {
         return ResponseEntity.ok(userService.updateUser(id, changes));
     }
 }

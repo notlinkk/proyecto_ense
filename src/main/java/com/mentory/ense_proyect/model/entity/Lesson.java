@@ -51,6 +51,14 @@ public class Lesson {
     @JsonView(CreateView.class)
     private String ownerName; // Nombre del propietario (no persistido)
 
+    @jakarta.persistence.Transient
+    @JsonView(CreateView.class)
+    private Integer moduleCount; // Número de módulos (calculado, no persistido)
+
+    @jakarta.persistence.Transient
+    @JsonView(CreateView.class)
+    private Integer totalDuration; // Duración total en minutos (calculado, no persistido)
+
     @JsonView(CreateView.class)
     private double price; // Precio de la lección
 
@@ -143,6 +151,22 @@ public class Lesson {
 
     public void setOwnerName(String ownerName) {
         this.ownerName = ownerName;
+    }
+
+    public Integer getModuleCount() {
+        return moduleCount;
+    }
+
+    public void setModuleCount(Integer moduleCount) {
+        this.moduleCount = moduleCount;
+    }
+
+    public Integer getTotalDuration() {
+        return totalDuration;
+    }
+
+    public void setTotalDuration(Integer totalDuration) {
+        this.totalDuration = totalDuration;
     }
 
     public double getPrice() {

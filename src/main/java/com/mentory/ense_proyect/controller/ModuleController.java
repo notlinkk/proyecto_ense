@@ -21,9 +21,6 @@ import org.springframework.hateoas.server.ExposesResourceFor;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
-import com.github.fge.jsonpatch.JsonPatchOperation;
-import com.github.fge.jsonpatch.JsonPatchException;
-
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 
@@ -161,8 +158,8 @@ public class ModuleController {
     @PreAuthorize("hasAuthority('modules:update')")
     public ResponseEntity<Module> updateModule(
             @PathVariable("id") String id,
-            @RequestBody List<JsonPatchOperation> changes
-        ) throws ModuleNotFoundException, JsonPatchException {
+            @RequestBody Map<String, Object> changes
+        ) throws ModuleNotFoundException {
         return ResponseEntity.ok(moduleService.updateModule(id, changes));
     }
 }

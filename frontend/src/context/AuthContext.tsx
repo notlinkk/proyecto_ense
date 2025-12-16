@@ -1,6 +1,8 @@
 import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { AuthContextType, LoginCredentials } from '../types';
+import { User } from '../types';
 import { authApi } from '../api/authApi';
+import { protectedApi } from '../api/protectedApi';
 
 /**
  * Contexto de autenticación.
@@ -33,7 +35,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // El JWT se almacena SOLO en memoria (estado de React)
   // NUNCA en localStorage o sessionStorage por seguridad
   const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  /**
+   * Cargar datos del usuario cuando tengamos un token válido.
+   */
+  const loadUser = useCallback(async () => {
+    try {
+      const userData = await protectedApi.getCurrentUser();
+      setUser(userData);
+    } catch (error) {
+      console.error('Error al cargar usuario:', error);
+      setUser(null);
+    }
+  }, []);
 
   /**
    * Al montar la aplicación, intentamos obtener un nuevo JWT
@@ -63,6 +79,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   /**
+   * Cuando el accessToken cambia, cargar datos del usuario.
+   */
+  useEffect(() => {
+    if (accessToken) {
+      loadUser();
+    } else {
+      setUser(null);
+    }
+  }, [accessToken, loadUser]);
+
+  /**
    * Función de login.
    * Envía las credenciales al backend y almacena el JWT en memoria.
    */
@@ -88,8 +115,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } catch (error) {
       console.error('Error al hacer logout en el servidor:', error);
     }
-    // Luego limpiar el token de memoria
+    // Luego limpiar el token y usuario de memoria
     setAccessToken(null);
+    setUser(null);
   }, []);
 
   // Determinar si el usuario está autenticado basándose en la presencia del JWT
@@ -97,6 +125,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const value: AuthContextType = {
     accessToken,
+    user,
     isAuthenticated,
     isLoading,
     login,

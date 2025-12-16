@@ -13,8 +13,11 @@ import '../styles/Layout.css';
  * Se usa como wrapper para todas las páginas protegidas.
  */
 function Layout() {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
+
+  // Check if user is admin
+  const isAdmin = user?.roles?.some(role => role.rolename === 'ADMIN') ?? false;
 
   const handleLogout = () => {
     logout();
@@ -49,6 +52,14 @@ function Layout() {
             >
               Perfil
             </NavLink>
+            {isAdmin && (
+              <NavLink 
+                to="/admin" 
+                className={({ isActive }) => isActive ? 'nav-link admin-link active' : 'nav-link admin-link'}
+              >
+                Admin
+              </NavLink>
+            )}
           </nav>
 
           <button onClick={handleLogout} className="logout-btn">

@@ -1,6 +1,29 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 /**
+ * Tipo para operaciones JSON Patch.
+ */
+export interface JsonPatchOperation {
+  op: 'replace' | 'add' | 'remove';
+  path: string;
+  value?: unknown;
+}
+
+/**
+ * Convierte un objeto parcial a operaciones JSON Patch.
+ * Solo incluye propiedades que no son undefined.
+ */
+export function toJsonPatch<T extends object>(data: Partial<T>): JsonPatchOperation[] {
+  return Object.entries(data)
+    .filter(([, value]) => value !== undefined)
+    .map(([key, value]) => ({
+      op: 'replace' as const,
+      path: `/${key}`,
+      value,
+    }));
+}
+
+/**
  * Cliente HTTP base configurado con axios.
  * 
  * CONFIGURACIÓN DE SEGURIDAD IMPORTANTE:

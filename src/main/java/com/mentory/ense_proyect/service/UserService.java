@@ -18,11 +18,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.data.domain.Page;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fge.jsonpatch.JsonPatch;
-import com.github.fge.jsonpatch.JsonPatchException;
-import com.github.fge.jsonpatch.JsonPatchOperation;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -35,17 +32,15 @@ public class UserService implements UserDetailsService {
     private final RoleRepository roleRepository;
     private final LessonRepository lessonRepository;
     private final PasswordEncoder passwordEncoder;
-    private final ObjectMapper mapper;
 
 
     @Autowired  
     public UserService (UserRepository userRepository, RoleRepository roleRepository, 
-                        LessonRepository lessonRepository, PasswordEncoder passwordEncoder, ObjectMapper mapper) {
+                        LessonRepository lessonRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.lessonRepository = lessonRepository;
         this.passwordEncoder = passwordEncoder;
-        this.mapper = mapper;
     }
 
     @ Override
@@ -69,12 +64,20 @@ public class UserService implements UserDetailsService {
 
 
 
-    public User updateUser(String username, List<JsonPatchOperation> changes) throws UserNotFoundException, JsonPatchException {
+    public User updateUser(String username, Map<String, Object> changes) throws UserNotFoundException {
         User user = userRepository.findById(username).orElseThrow(() -> new UserNotFoundException(username));
-        JsonPatch patch = new JsonPatch(changes);
-        JsonNode patched = patch.apply(mapper.convertValue(user, JsonNode.class));
-        User updated = mapper.convertValue(patched, User.class);
-        return userRepository.save(updated);
+        BeanWrapper wrapper = new BeanWrapperImpl(user);
+        changes.forEach((key, value) -> {
+            if (wrapper.isWritableProperty(key)) {
+                // Encode password if being updated
+                if ("password".equals(key) && value != null) {
+                    wrapper.setPropertyValue(key, passwordEncoder.encode(value.toString()));
+                } else {
+                    wrapper.setPropertyValue(key, value);
+                }
+            }
+        });
+        return userRepository.save(user);
     }
 
     public Page<@NonNull User> getUsers(@Nullable String name, PageRequest page) {

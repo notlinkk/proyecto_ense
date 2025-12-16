@@ -63,6 +63,21 @@
   background-color: rgba(79, 70, 229, 0.1);
 }
 
+/* Link de Admin - estilo especial */
+.nav-link.admin-link {
+  color: #f59e0b;
+}
+
+.nav-link.admin-link:hover {
+  color: #fbbf24;
+  background-color: rgba(245, 158, 11, 0.1);
+}
+
+.nav-link.admin-link.active {
+  color: #f59e0b;
+  background-color: rgba(245, 158, 11, 0.15);
+}
+
 /* Botón de logout */
 .logout-btn {
   padding: var(--spacing-sm) var(--spacing-lg);

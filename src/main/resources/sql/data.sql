@@ -150,9 +150,9 @@ INSERT INTO abilities (name, description) VALUES
 -- ============================================
 INSERT INTO users (username, name, surname1, surname2, email, password) VALUES
 ('admin', 'Administrator', 'System', '', 'admin@mentory.com', '{bcrypt}$2a$10$aRBN4Mi5tTnxLArhkiXCQuvC2XfUDwLe412RKnO9O.D8LPuLQDdcW'),
-('teacher1', 'Elena', 'Martinez', 'Piano', 'elena.martinez@mentory.com', '{bcrypt}$2a$10$aRBN4Mi5tTnxLArhkiXCQuvC2XfUDwLe412RKnO9O.D8LPuLQDdcW'),
-('teacher2', 'Marcus', 'Chen', 'Gaming', 'marcus.chen@mentory.com', '{bcrypt}$2a$10$aRBN4Mi5tTnxLArhkiXCQuvC2XfUDwLe412RKnO9O.D8LPuLQDdcW'),
-('teacher3', 'Sofia', 'Rossi', 'Cooking', 'sofia.rossi@mentory.com', '{bcrypt}$2a$10$aRBN4Mi5tTnxLArhkiXCQuvC2XfUDwLe412RKnO9O.D8LPuLQDdcW'),
+('teacher1', 'Elena', 'Martinez', 'García', 'elena.martinez@mentory.com', '{bcrypt}$2a$10$aRBN4Mi5tTnxLArhkiXCQuvC2XfUDwLe412RKnO9O.D8LPuLQDdcW'),
+('teacher2', 'Marcus', 'Chen', 'Lopez', 'marcus.chen@mentory.com', '{bcrypt}$2a$10$aRBN4Mi5tTnxLArhkiXCQuvC2XfUDwLe412RKnO9O.D8LPuLQDdcW'),
+('teacher3', 'Sofia', 'Rossi', 'Fraga', 'sofia.rossi@mentory.com', '{bcrypt}$2a$10$aRBN4Mi5tTnxLArhkiXCQuvC2XfUDwLe412RKnO9O.D8LPuLQDdcW'),
 ('student1', 'Ana', 'Martinez', 'Sanchez', 'ana.martinez@email.com', '{bcrypt}$2a$10$aRBN4Mi5tTnxLArhkiXCQuvC2XfUDwLe412RKnO9O.D8LPuLQDdcW'),
 ('student2', 'Pedro', 'Lopez', 'Fernandez', 'pedro.lopez@email.com', '{bcrypt}$2a$10$aRBN4Mi5tTnxLArhkiXCQuvC2XfUDwLe412RKnO9O.D8LPuLQDdcW'),
 ('student3', 'Laura', 'Hernandez', 'Diaz', 'laura.hernandez@email.com', '{bcrypt}$2a$10$aRBN4Mi5tTnxLArhkiXCQuvC2XfUDwLe412RKnO9O.D8LPuLQDdcW');

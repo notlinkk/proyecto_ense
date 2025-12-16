@@ -7,6 +7,7 @@ import com.mentory.ense_proyect.model.entity.Module;
 import com.mentory.ense_proyect.repository.LessonRepository;
 import com.mentory.ense_proyect.repository.ModuleRepository;
 import com.mentory.ense_proyect.repository.SubscriptionRepository;
+import com.mentory.ense_proyect.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -14,11 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Page;
 
-import com.github.fge.jsonpatch.JsonPatch;
-import com.github.fge.jsonpatch.JsonPatchException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.github.fge.jsonpatch.JsonPatchOperation;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -30,22 +28,27 @@ public class ModuleService {
     private final ModuleRepository moduleRepository;
     private final LessonRepository lessonRepository;
     private final SubscriptionRepository subscriptionRepository;
-    private final ObjectMapper mapper;
+    private final UserRepository userRepository;
 
     @Autowired
     public ModuleService(ModuleRepository moduleRepository, LessonRepository lessonRepository, 
-                         SubscriptionRepository subscriptionRepository, ObjectMapper mapper) {
+                         SubscriptionRepository subscriptionRepository, UserRepository userRepository) {
         this.moduleRepository = moduleRepository;
         this.lessonRepository = lessonRepository;
         this.subscriptionRepository = subscriptionRepository;
-        this.mapper = mapper;
+        this.userRepository = userRepository;
     }
 
     /**
      * Check if user can access a module.
-     * User can access if: is owner of the lesson, has active subscription, or is the lesson owner.
+     * User can access if: is admin, is owner of the lesson, or has active subscription.
      */
     public boolean canAccessModule(String username, Module module) {
+        // Admin can always access
+        if (isAdmin(username)) {
+            return true;
+        }
+        
         Lesson lesson = module.getLesson();
         if (lesson == null) {
             return false;
@@ -56,6 +59,16 @@ public class ModuleService {
         }
         // Check for active subscription
         return subscriptionRepository.findByBuyerUsernameAndLessonIdAndActiveTrue(username, lesson.getId()).isPresent();
+    }
+
+    /**
+     * Check if user has ADMIN role.
+     */
+    private boolean isAdmin(String username) {
+        return userRepository.findById(username)
+            .map(user -> user.getRoles().stream()
+                .anyMatch(role -> "ADMIN".equals(role.getRolename())))
+            .orElse(false);
     }
 
     // CRUD
@@ -88,8 +101,13 @@ public class ModuleService {
 
     /**
      * Get modules that the user has access to (owns or subscribed to the lesson).
+     * Admin users can see all modules.
      */
     public Page<@NonNull Module> getModulesWithAccessControl(@Nullable String name, String username, PageRequest page) {
+        // Admin can see all modules
+        if (isAdmin(username)) {
+            return moduleRepository.findAll(page);
+        }
         // Get all modules the user has access to through subscriptions or ownership
         return moduleRepository.findAccessibleModules(username, page);
     }
@@ -113,12 +131,15 @@ public class ModuleService {
         return module;
     }
 
-    public Module updateModule(String name, List<JsonPatchOperation> changes) throws ModuleNotFoundException, JsonPatchException {
+    public Module updateModule(String name, Map<String, Object> changes) throws ModuleNotFoundException {
         Module module = moduleRepository.findById(name).orElseThrow(() -> new ModuleNotFoundException(name));
-        JsonPatch patch = new JsonPatch(changes);
-        JsonNode patched = patch.apply(mapper.convertValue(module, JsonNode.class));
-        Module updated = mapper.convertValue(patched, Module.class);
-        return moduleRepository.save(updated);
+        BeanWrapper wrapper = new BeanWrapperImpl(module);
+        changes.forEach((key, value) -> {
+            if (wrapper.isWritableProperty(key)) {
+                wrapper.setPropertyValue(key, value);
+            }
+        });
+        return moduleRepository.save(module);
     }
 
     public void deleteModule(String id) throws ModuleNotFoundException {

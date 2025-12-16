@@ -4,7 +4,7 @@ import HomePage from './pages/HomePage'
 import LessonsPage from './pages/LessonsPage'
 import LessonDetailPage from './pages/LessonDetailPage'
 import ProfilePage from './pages/ProfilePage'
-import { CreateLessonPage } from './pages'
+import { CreateLessonPage, AdminPage } from './pages'
 import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout'
 import { useAuthSync } from './hooks'
@@ -40,6 +40,7 @@ function App() {
             <Route path="/lessons/new" element={<CreateLessonPage />} />
             <Route path="/lessons/:id" element={<LessonDetailPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/admin" element={<AdminPage />} />
           </Route>
         </Route>
         

@@ -7,3 +7,4 @@ export { default as LessonsPage } from './LessonsPage';
 export { default as LessonDetailPage } from './LessonDetailPage';
 export { default as ProfilePage } from './ProfilePage';
 export { CreateLessonPage } from './CreateLessonPage';
+export { default as AdminPage } from './AdminPage';

@@ -124,6 +124,15 @@ export const protectedApi = {
     await apiClient.delete(`/lessons/${id}`);
   },
 
+  /**
+   * Actualiza parcialmente una lección.
+   * Envía un objeto con los campos a actualizar.
+   */
+  updateLesson: async (id: string, data: Partial<Lesson>): Promise<Lesson> => {
+    const response = await apiClient.patch<Lesson>(`/lessons/${id}`, data);
+    return response.data;
+  },
+
   // ==================== MODULE ENDPOINTS ====================
 
   /**
@@ -157,6 +166,15 @@ export const protectedApi = {
    */
   deleteModule: async (id: string): Promise<void> => {
     await apiClient.delete(`/modules/${id}`);
+  },
+
+  /**
+   * Actualiza parcialmente un módulo.
+   * Envía un objeto con los campos a actualizar.
+   */
+  updateModule: async (id: string, data: Partial<Module>): Promise<Module> => {
+    const response = await apiClient.patch<Module>(`/modules/${id}`, data);
+    return response.data;
   },
 
   // ==================== SUBSCRIPTION ENDPOINTS ====================

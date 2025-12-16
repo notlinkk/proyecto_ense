@@ -16,11 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Page;
 
-import com.github.fge.jsonpatch.JsonPatch;
-import com.github.fge.jsonpatch.JsonPatchException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.github.fge.jsonpatch.JsonPatchOperation;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -33,17 +31,14 @@ public class LessonService {
     private final AbilityRepository abilityRepository;
     private final UserRepository userRepository;
     private final SubscriptionRepository subscriptionRepository;
-    private final ObjectMapper mapper;
 
     @Autowired
     public LessonService(LessonRepository leccionRepository, AbilityRepository abilityRepository, 
-                         UserRepository userRepository, SubscriptionRepository subscriptionRepository,
-                         ObjectMapper mapper) {
+                         UserRepository userRepository, SubscriptionRepository subscriptionRepository) {
         this.lessonRepository = leccionRepository;
         this.abilityRepository = abilityRepository;
         this.userRepository = userRepository;
         this.subscriptionRepository = subscriptionRepository;
-        this.mapper = mapper;
     }
 
     /**
@@ -51,12 +46,26 @@ public class LessonService {
      * User can access if: is owner, has active subscription, or is ADMIN.
      */
     public boolean canAccessLessonContent(String username, Lesson lesson) {
+        // Admin can always access
+        if (isAdmin(username)) {
+            return true;
+        }
         // Owner can always access
         if (lesson.getOwnerId().equals(username)) {
             return true;
         }
         // Check for active subscription
         return subscriptionRepository.findByBuyerUsernameAndLessonIdAndActiveTrue(username, lesson.getId()).isPresent();
+    }
+
+    /**
+     * Check if user has ADMIN role.
+     */
+    private boolean isAdmin(String username) {
+        return userRepository.findById(username)
+            .map(user -> user.getRoles().stream()
+                .anyMatch(role -> "ADMIN".equals(role.getRolename())))
+            .orElse(false);
     }
 
     // CRUD
@@ -142,23 +151,45 @@ public class LessonService {
         }
     }
 
+    /**
+     * Populates the moduleCount and totalDuration transient fields of a lesson.
+     * This should be called BEFORE hiding modules for access control.
+     */
+    private void populateModuleStats(Lesson lesson) {
+        Set<com.mentory.ense_proyect.model.entity.Module> modules = lesson.getModules();
+        if (modules != null) {
+            lesson.setModuleCount(modules.size());
+            int totalDuration = modules.stream()
+                .mapToInt(com.mentory.ense_proyect.model.entity.Module::getDuration)
+                .sum();
+            lesson.setTotalDuration(totalDuration);
+        } else {
+            lesson.setModuleCount(0);
+            lesson.setTotalDuration(0);
+        }
+    }
+
     public Lesson getLesson(String id) throws LessonNotFoundException {
         Lesson lesson = lessonRepository.findByIdWithModulesAndAbilities(id)
             .orElseThrow(() -> new LessonNotFoundException(id));
         populateOwnerName(lesson);
+        populateModuleStats(lesson);
         return lesson;
     }
 
     /**
      * Get a lesson with access control.
-     * If user doesn't have access, modules are hidden.
+     * If user doesn't have access, modules are hidden but stats are preserved.
      */
     public Lesson getLessonWithAccessControl(String id, String username) throws LessonNotFoundException {
         Lesson lesson = lessonRepository.findByIdWithModulesAndAbilities(id)
             .orElseThrow(() -> new LessonNotFoundException(id));
         populateOwnerName(lesson);
         
-        // If user doesn't have access, hide modules
+        // Calculate module stats BEFORE potentially hiding modules
+        populateModuleStats(lesson);
+        
+        // If user doesn't have access, hide modules (but stats are already set)
         if (!canAccessLessonContent(username, lesson)) {
             lesson.setModules(new HashSet<>());
         }
@@ -166,12 +197,15 @@ public class LessonService {
         return lesson;
     }
 
-    public Lesson updateLesson(String id, List<JsonPatchOperation> changes) throws LessonNotFoundException, JsonPatchException {
+    public Lesson updateLesson(String id, Map<String, Object> changes) throws LessonNotFoundException {
         Lesson lesson = lessonRepository.findById(id).orElseThrow(() -> new LessonNotFoundException(id));
-            JsonPatch patch = new JsonPatch(changes);
-            JsonNode patched = patch.apply(mapper.convertValue(lesson, JsonNode.class));
-            Lesson lessonPatched = mapper.convertValue(patched, Lesson.class);
-            return lessonRepository.save(lessonPatched);
+        BeanWrapper wrapper = new BeanWrapperImpl(lesson);
+        changes.forEach((key, value) -> {
+            if (wrapper.isWritableProperty(key)) {
+                wrapper.setPropertyValue(key, value);
+            }
+        });
+        return lessonRepository.save(lesson);
     }
     
     public void deleteLesson(String id) throws LessonNotFoundException {

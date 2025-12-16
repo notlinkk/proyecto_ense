@@ -25,9 +25,6 @@ import org.springframework.hateoas.server.ExposesResourceFor;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
-import com.github.fge.jsonpatch.JsonPatchOperation;
-import com.github.fge.jsonpatch.JsonPatchException;
-
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.*;
@@ -172,8 +169,8 @@ public class SubscriptionController {
     @PreAuthorize("hasAuthority('subscriptions:update')")
     public ResponseEntity<Subscription> updateSubscription(
             @PathVariable("id") String id,
-            @RequestBody List<JsonPatchOperation> changes
-    ) throws SubscriptionNotFoundException, JsonPatchException {
+            @RequestBody Map<String, Object> changes
+    ) throws SubscriptionNotFoundException {
         return ResponseEntity.ok(subscriptionService.updateSubscription(id, changes));
     }
 

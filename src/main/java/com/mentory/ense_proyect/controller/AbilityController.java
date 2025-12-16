@@ -19,9 +19,6 @@ import org.springframework.hateoas.server.ExposesResourceFor;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
-import com.github.fge.jsonpatch.JsonPatchOperation;
-import com.github.fge.jsonpatch.JsonPatchException;
-
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.*;
@@ -165,8 +162,8 @@ public class AbilityController {
     @PreAuthorize("hasAuthority('abilities:update')")
     public ResponseEntity<Ability> updateAbility(
             @PathVariable("id") String id,
-            @RequestBody List<JsonPatchOperation> changes
-            ) throws AbilityNotFoundException, JsonPatchException {
+            @RequestBody Map<String, Object> changes
+            ) throws AbilityNotFoundException {
         return ResponseEntity.ok(abilityService.updateAbility(id, changes));
     }
 }

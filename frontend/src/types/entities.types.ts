@@ -35,6 +35,8 @@ export interface Lesson {
   ownerName?: string;
   price?: number;
   imageUrl?: string;
+  moduleCount?: number;    // Número de módulos (siempre disponible)
+  totalDuration?: number;  // Duración total en minutos (siempre disponible)
   modules?: Module[];
   abilities?: Ability[];
 }
